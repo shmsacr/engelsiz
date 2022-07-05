@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "834693505829",
+    "project_id": "engelsiz-22",
+    "storage_bucket": "engelsiz-22.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834693505829:android:2101421c673bca1fd430cc",
+        "android_client_info": {
+          "package_name": "com.engelsiz.engelsiz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "834693505829-kj3ml18iu4b72unlqu3qgmo0u03gq2rn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7Yd9fg9ifD_Ev4CYCK3Bb3lCL7wbYTiE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "834693505829-kj3ml18iu4b72unlqu3qgmo0u03gq2rn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
