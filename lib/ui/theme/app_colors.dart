@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color primary = Color.fromRGBO(0, 167, 208, 1);
-  static const Color secondary = Color.fromRGBO(137, 140, 147, 1);
+  static const Color primary = Color(0xff105694);
+  static const Color primaryContainer = Color(0xffd0e4ff);
+  static const Color secondary = Color(0xff9e001d);
+  static const Color secondaryContainer = Color(0xffffdbcf);
+  static const Color tertiary = Color(0xff006875);
+  static const Color tertiaryContainer = Color(0xff95f0ff);
+  static const Color appBarColor = Color(0xffffdbcf);
+  static const Color error = Color(0xffb00020);
 }
