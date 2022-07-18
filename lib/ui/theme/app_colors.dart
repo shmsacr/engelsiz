@@ -9,4 +9,6 @@ class AppColors {
   static const Color tertiaryContainer = Color(0xff95f0ff);
   static const Color appBarColor = Color(0xffffdbcf);
   static const Color error = Color(0xffb00020);
+  static const Color textFaded = Color(0xFF9899A5);
+  static const Color textLigth = Color(0xFFF5F5F5);
 }
