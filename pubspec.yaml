@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   cupertino_icons: ^1.0.2
   firebase_core: ^1.19.1
@@ -17,10 +19,13 @@ dependencies:
   curved_navigation_bar: ^1.0.3
   flex_color_scheme: ^5.1.0
   google_fonts: ^3.0.1
+  intl: ^0.17.0
+  syncfusion_flutter_calendar: ^20.2.38
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
 
   flutter_lints: ^2.0.0
 

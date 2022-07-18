@@ -26,7 +26,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final index = ref.watch(dashboardIndexProvider);
     return Scaffold(
-      body: _screens.elementAt(index),
+      body: SafeArea(child: _screens.elementAt(index)),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
