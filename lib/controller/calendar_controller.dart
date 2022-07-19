@@ -9,8 +9,19 @@ final calendarProvider = Provider<CalendarController>((ref) {
   final calendarController = CalendarController();
   calendarController.selectedDate = DateTime.now();
   calendarController.displayDate = DateTime.now();
+  calendarController.addPropertyChangedListener(
+    (property) {
+      if (property == "selectedDate") {
+        ref.read(isSelectedBeforeTodayProvider.notifier).update((state) =>
+            calendarController.selectedDate!
+                .isBefore(DateTime.now().subtract(const Duration(days: 1))));
+      }
+    },
+  );
   return calendarController;
 });
+
+final isSelectedBeforeTodayProvider = StateProvider<bool>((ref) => false);
 
 class AppointmentNotifier extends ChangeNotifier {
   final Appointment appointment;
@@ -20,7 +31,7 @@ class AppointmentNotifier extends ChangeNotifier {
   AppointmentNotifier({required DateTime startTime, DateTime? endTime})
       : appointment = Appointment(
           startTime: startTime,
-          endTime: endTime ?? startTime.add(const Duration(hours: 1)),
+          endTime: endTime ?? startTime.add(const Duration(minutes: 20)),
           color: AppointmentColor.green.color,
         ) {
     subjectController.addListener(_updateSubject);
@@ -28,8 +39,9 @@ class AppointmentNotifier extends ChangeNotifier {
   }
 
   void updateStartTime(DateTime startTime) {
-    appointment.startTime = startTime;
-    appointment.endTime = startTime.add(const Duration(hours: 1));
+    final startTime_ = preventMidnight(startTime);
+    appointment.startTime = startTime_;
+    appointment.endTime = startTime_.add(const Duration(minutes: 20));
     notifyListeners();
   }
 
@@ -57,8 +69,11 @@ class AppointmentNotifier extends ChangeNotifier {
 final singleAppointmentProvider =
     ChangeNotifierProvider.family<AppointmentNotifier, DateTime>(
         (ref, startTime) {
-  return AppointmentNotifier(startTime: startTime);
+  return AppointmentNotifier(startTime: preventMidnight(startTime));
 });
+
+DateTime preventMidnight(DateTime time) =>
+    time.hour == 0 ? time.add(const Duration(hours: 9)) : time;
 
 enum AppointmentColor {
   green(Color.fromRGBO(15, 134, 68, 1), "Yeşil"),

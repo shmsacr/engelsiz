@@ -6,17 +6,17 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class AppointmentView extends ConsumerWidget {
-  final DateTime startTime;
+  final DateTime selectedTime;
 
   const AppointmentView({
-    required this.startTime,
+    required this.selectedTime,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appointmentController =
-        ref.watch(singleAppointmentProvider(startTime));
+        ref.watch(singleAppointmentProvider(selectedTime));
     final eventsController = ref.watch(eventsProvider);
     return Scaffold(
       appBar: AppBar(
@@ -67,8 +67,8 @@ class AppointmentView extends ConsumerWidget {
                     onPressed: () async {
                       DateTime? selection = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(1900),
+                        initialDate: selectedTime,
+                        firstDate: DateTime.now(),
                         lastDate: DateTime(2100),
                       );
                       if (selection != null) {
@@ -102,21 +102,12 @@ class AppointmentView extends ConsumerWidget {
             child: Row(
               children: [
                 TextButton(
-                    child: Text(
-                      DateFormat("EEE, MMM dd yyyy")
-                          .format(appointmentController.appointment.endTime),
-                    ),
-                    onPressed: () async {
-                      DateTime? selection = await showDatePicker(
-                        context: context,
-                        initialDate: appointmentController.appointment.endTime,
-                        firstDate: appointmentController.appointment.startTime,
-                        lastDate: DateTime(2100),
-                      );
-                      if (selection != null) {
-                        appointmentController.updateEndTime(selection);
-                      }
-                    }),
+                  child: Text(
+                    DateFormat("EEE, MMM dd yyyy")
+                        .format(appointmentController.appointment.endTime),
+                  ),
+                  onPressed: () {},
+                ),
                 TextButton(
                   child: Text(DateFormat("Hm")
                       .format(appointmentController.appointment.endTime)),
@@ -124,7 +115,8 @@ class AppointmentView extends ConsumerWidget {
                     final TimeOfDay? selection = await showTimePicker(
                       context: context,
                       initialTime: TimeOfDay.fromDateTime(
-                          appointmentController.appointment.endTime),
+                        appointmentController.appointment.endTime,
+                      ),
                     );
                     if (selection != null) {
                       final DateTime date =

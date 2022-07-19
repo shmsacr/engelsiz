@@ -16,40 +16,36 @@ class CalendarScreen extends ConsumerWidget {
     return Scaffold(
       body: SfCalendar(
         controller: calendarController,
-        view: CalendarView.month,
         firstDayOfWeek: 1,
         showNavigationArrow: true,
-        showDatePickerButton: true,
-        allowDragAndDrop: true,
-        allowedViews: const [
-          CalendarView.month,
-          CalendarView.week,
-          CalendarView.timelineWeek
-        ],
         dataSource: eventsController,
-        onTap: ((calendarTapDetails) {
-          debugPrint(calendarTapDetails.date.toString());
-        }),
+        view: CalendarView.month,
+        allowedViews: const [CalendarView.month, CalendarView.week],
+        timeSlotViewSettings: const TimeSlotViewSettings(timeFormat: 'HH:mm'),
         monthViewSettings: const MonthViewSettings(
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
           showAgenda: true,
-          showTrailingAndLeadingDates: true,
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AppointmentView(
-                startTime: DateTime.now(),
-              ),
-            ),
-          );
+        onTap: (calendarTapDetails) {
+          debugPrint(calendarTapDetails.date.toString());
         },
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add),
       ),
+      floatingActionButton: ref.watch(isSelectedBeforeTodayProvider)
+          ? null
+          : FloatingActionButton(
+              shape: const CircleBorder(),
+              child: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AppointmentView(
+                      selectedTime: calendarController.selectedDate!,
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }
