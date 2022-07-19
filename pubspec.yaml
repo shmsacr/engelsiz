@@ -13,19 +13,22 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^1.0.5
   firebase_core: ^1.19.1
   flutter_riverpod: ^1.0.4
   curved_navigation_bar: ^1.0.3
   flex_color_scheme: ^5.1.0
   google_fonts: ^3.0.1
+  cached_network_image: ^3.2.1
+  faker: ^2.0.0
+  jiffy: ^5.0.0
+
   intl: ^0.17.0
   syncfusion_flutter_calendar: ^20.2.38
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
 
   flutter_lints: ^2.0.0
 
