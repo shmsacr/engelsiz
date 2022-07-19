@@ -22,11 +22,14 @@ class CalendarScreen extends ConsumerWidget {
         view: CalendarView.month,
         allowedViews: const [CalendarView.month, CalendarView.week],
         timeSlotViewSettings: const TimeSlotViewSettings(timeFormat: 'HH:mm'),
+        cellEndPadding: 0,
+        // appointmentTextStyle: TextStyle(fontSize: 36),
         monthViewSettings: const MonthViewSettings(
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
           showAgenda: true,
         ),
         onTap: (calendarTapDetails) {
+          debugPrint(calendarTapDetails.targetElement.toString());
           debugPrint(calendarTapDetails.date.toString());
         },
       ),

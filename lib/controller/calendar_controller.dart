@@ -11,7 +11,8 @@ final calendarProvider = Provider<CalendarController>((ref) {
   calendarController.displayDate = DateTime.now();
   calendarController.addPropertyChangedListener(
     (property) {
-      if (property == "selectedDate") {
+      if (property == "selectedDate" &&
+          calendarController.selectedDate != null) {
         ref.read(isSelectedBeforeTodayProvider.notifier).update((state) =>
             calendarController.selectedDate!
                 .isBefore(DateTime.now().subtract(const Duration(days: 1))));
