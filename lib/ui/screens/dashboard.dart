@@ -42,7 +42,10 @@ class DashboardScreen extends ConsumerWidget {
             ],
             index: index,
             color: AppColors.primary,
-            backgroundColor: const Color(0xffb9c8e4),
+            backgroundColor:
+                MediaQuery.of(context).platformBrightness == Brightness.dark
+                    ? const Color(0xff101d28)
+                    : const Color(0xffb7c6d8),
             onTap: (int newIndex) => ref
                 .read(dashboardIndexProvider.notifier)
                 .update((state) => newIndex),
@@ -68,8 +71,10 @@ class DashboardScreen extends ConsumerWidget {
 const labelList = ["Ana Sayfa", "Randevu", "Gelişim", "Mesajlar", "Profil"];
 
 Widget _label(String label) => Expanded(
-        child: Center(
-            child: Text(
-      label,
-      style: const TextStyle(color: AppColors.primaryContainer),
-    )));
+      child: Center(
+        child: Text(
+          label,
+          style: const TextStyle(color: AppColors.primaryContainer),
+        ),
+      ),
+    );
