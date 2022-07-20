@@ -18,11 +18,13 @@ class CalendarScreen extends ConsumerWidget {
         controller: calendarController,
         firstDayOfWeek: 1,
         showNavigationArrow: true,
+        timeZone: 'Turkey Standard Time',
         dataSource: eventsController,
         view: CalendarView.month,
         allowedViews: const [CalendarView.month, CalendarView.week],
         timeSlotViewSettings: const TimeSlotViewSettings(timeFormat: 'HH:mm'),
         cellEndPadding: 0,
+        appointmentTimeTextFormat: 'HH:mm',
         // appointmentTextStyle: TextStyle(fontSize: 36),
         monthViewSettings: const MonthViewSettings(
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
