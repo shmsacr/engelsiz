@@ -1,3 +1,4 @@
+import 'package:engelsiz/utils/datetime_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -7,15 +8,16 @@ final eventsProvider = Provider<MeetingDataSource>(
 
 final calendarProvider = Provider<CalendarController>((ref) {
   final calendarController = CalendarController();
-  calendarController.selectedDate = DateTime.now();
-  calendarController.displayDate = DateTime.now();
+  DateTime today = DateTimeExt(DateTime.now())
+      .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+  calendarController.selectedDate = today;
+  calendarController.displayDate = today;
   calendarController.addPropertyChangedListener(
     (property) {
       if (property == "selectedDate" &&
           calendarController.selectedDate != null) {
-        ref.read(isSelectedBeforeTodayProvider.notifier).update((state) =>
-            calendarController.selectedDate!
-                .isBefore(DateTime.now().subtract(const Duration(days: 1))));
+        ref.read(isSelectedBeforeTodayProvider.notifier).update(
+            (state) => calendarController.selectedDate!.isBefore(today));
       }
     },
   );
