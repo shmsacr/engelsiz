@@ -16,22 +16,22 @@ class AppointmentView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appointmentController =
+    final appointmentNotifier =
         ref.watch(singleAppointmentProvider(selectedTime));
     final eventsController = ref.watch(eventsProvider);
     return Scaffold(
       appBar: AppBar(
         elevation: 24.0,
-        backgroundColor: appointmentController.appointment.color,
+        backgroundColor: appointmentNotifier.appointment.color,
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: () {
               eventsController.appointments
-                  ?.add(appointmentController.appointment);
+                  ?.add(appointmentNotifier.appointment);
               SchedulerBinding.instance.addPostFrameCallback((_) {
                 eventsController.notifyListeners(CalendarDataSourceAction.add,
-                    <Appointment>[appointmentController.appointment]);
+                    <Appointment>[appointmentNotifier.appointment]);
               });
               Navigator.of(context).pop();
             },
@@ -47,7 +47,7 @@ class AppointmentView extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-              controller: appointmentController.subjectController,
+              controller: appointmentNotifier.subjectController,
               decoration: const InputDecoration(
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -73,12 +73,12 @@ class AppointmentView extends ConsumerWidget {
                       lastDate: DateTime(2100),
                     );
                     if (selection != null) {
-                      appointmentController.updateStartTime(selection);
+                      appointmentNotifier.updateStartTime(selection);
                     }
                   },
                   child: Text(
                     DateFormat("EEE, MMM dd yyyy", "tr_TR")
-                        .format(appointmentController.appointment.startTime),
+                        .format(appointmentNotifier.appointment.startTime),
                   ),
                 ),
                 TextButton(
@@ -90,11 +90,12 @@ class AppointmentView extends ConsumerWidget {
                       context: context,
                       isScrollControlled: true,
                       enableDrag: true,
-                      builder: (_) => AppTimePicker(selectedTime: selectedTime),
+                      builder: (_) => AppTimePicker(
+                          appointmentNotifier: appointmentNotifier),
                     );
                   },
                   child: Text(
-                      "${DateFormat("Hm").format(appointmentController.appointment.startTime)} - ${DateFormat("Hm").format(appointmentController.appointment.startTime.add(const Duration(minutes: 20)))}"),
+                      "${DateFormat("Hm").format(appointmentNotifier.appointment.startTime)} - ${DateFormat("Hm").format(appointmentNotifier.appointment.startTime.add(const Duration(minutes: 20)))}"),
                 )
               ],
             ),
@@ -115,7 +116,7 @@ class AppointmentView extends ConsumerWidget {
                           (appColor) => InkWell(
                             borderRadius: BorderRadius.circular(8.0),
                             onTap: () {
-                              appointmentController.updateColor(appColor.color);
+                              appointmentNotifier.updateColor(appColor.color);
                               Navigator.of(context).pop();
                             },
                             child: colorRow(appColor),
@@ -126,14 +127,14 @@ class AppointmentView extends ConsumerWidget {
                 ),
               ),
               child: colorRow(AppointmentColor.values.firstWhere(
-                  (e) => e.color == appointmentController.appointment.color)),
+                  (e) => e.color == appointmentNotifier.appointment.color)),
             ),
           ),
           customDivider(),
           ListTile(
             leading: const Icon(Icons.subject),
             title: TextField(
-              controller: appointmentController.descriptionController,
+              controller: appointmentNotifier.descriptionController,
               keyboardType: TextInputType.multiline,
               maxLines: null,
               minLines: null,

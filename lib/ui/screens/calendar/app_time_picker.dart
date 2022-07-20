@@ -6,14 +6,13 @@ import 'package:engelsiz/utils/datetime_ext.dart';
 import 'package:engelsiz/controller/calendar_controller.dart';
 
 class AppTimePicker extends ConsumerWidget {
-  final DateTime selectedTime;
+  final AppointmentNotifier appointmentNotifier;
 
-  const AppTimePicker({required this.selectedTime, Key? key}) : super(key: key);
+  const AppTimePicker({required this.appointmentNotifier, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appointmentController =
-        ref.watch(singleAppointmentProvider(selectedTime));
     final cupertinoTextStyle = Theme.of(context).textTheme.headlineSmall;
 
     return Container(
@@ -30,8 +29,8 @@ class AppTimePicker extends ConsumerWidget {
                 itemExtent: 36,
                 scrollController: FixedExtentScrollController(initialItem: 1),
                 onSelectedItemChanged: (value) {
-                  appointmentController.updateStartTime(
-                      DateTimeExt(appointmentController.appointment.startTime)
+                  appointmentNotifier.updateStartTime(
+                      DateTimeExt(appointmentNotifier.appointment.startTime)
                           .copyWith(hour: value + 8));
                 },
                 children: List<Widget>.generate(
@@ -59,8 +58,8 @@ class AppTimePicker extends ConsumerWidget {
                 itemExtent: 36,
                 offAxisFraction: 0.75,
                 onSelectedItemChanged: (value) {
-                  appointmentController.updateStartTime(
-                      DateTimeExt(appointmentController.appointment.startTime)
+                  appointmentNotifier.updateStartTime(
+                      DateTimeExt(appointmentNotifier.appointment.startTime)
                           .copyWith(minute: value * 20));
                 },
                 childCount: 3,
