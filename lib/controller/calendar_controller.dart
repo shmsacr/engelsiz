@@ -39,6 +39,9 @@ class AppointmentNotifier extends ChangeNotifier {
     descriptionController.addListener(_updateDescription);
   }
 
+  int? get startHour => appointment.startTime.hour;
+  int? get startMinute => appointment.startTime.minute;
+
   void updateStartTime(DateTime startTime) {
     final startTime_ = preventMidnight(startTime);
     appointment.startTime = startTime_;

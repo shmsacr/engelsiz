@@ -1,6 +1,5 @@
 import 'package:engelsiz/controller/calendar_controller.dart';
-import 'package:engelsiz/utils/datetime_ext.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:engelsiz/ui/screens/calendar/app_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +19,6 @@ class AppointmentView extends ConsumerWidget {
     final appointmentController =
         ref.watch(singleAppointmentProvider(selectedTime));
     final eventsController = ref.watch(eventsProvider);
-    final cupertinoTextStyle = Theme.of(context).textTheme.headlineSmall;
     return Scaffold(
       appBar: AppBar(
         elevation: 24.0,
@@ -64,97 +62,35 @@ class AppointmentView extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 TextButton(
-                    child: Text(
-                      DateFormat("EEE, MMM dd yyyy", "tr_TR")
-                          .format(appointmentController.appointment.startTime),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    ),
-                    onPressed: () async {
-                      DateTime? selection = await showDatePicker(
-                        context: context,
-                        initialDate: selectedTime,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime(2100),
-                      );
-                      if (selection != null) {
-                        appointmentController.updateStartTime(selection);
-                      }
-                    }),
-                TextButton(
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   ),
                   onPressed: () async {
-                    _showDialog(
-                      context,
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Flexible(child: Container()),
-                          Flexible(
-                            flex: 2,
-                            child: CupertinoPicker(
-                              itemExtent: 36,
-                              scrollController:
-                                  FixedExtentScrollController(initialItem: 1),
-                              onSelectedItemChanged: (value) {
-                                appointmentController.updateStartTime(
-                                    DateTimeExt(appointmentController
-                                            .appointment.startTime)
-                                        .copyWith(hour: value + 8));
-                              },
-                              children: List<Widget>.generate(
-                                10,
-                                (int index) => Material(
-                                  type: MaterialType.transparency,
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 24.0),
-                                      child: Text(
-                                        (index + 8).toString().padLeft(2, '0'),
-                                        style: cupertinoTextStyle,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Text(":", style: cupertinoTextStyle),
-                          Flexible(
-                            flex: 2,
-                            child: CupertinoPicker(
-                              offAxisFraction: 0.75,
-                              itemExtent: 36,
-                              onSelectedItemChanged: (value) {
-                                debugPrint((value * 20).toString());
-                                appointmentController.updateStartTime(
-                                    DateTimeExt(appointmentController
-                                            .appointment.startTime)
-                                        .copyWith(minute: value * 20));
-                              },
-                              children: List<Widget>.generate(
-                                3,
-                                (int index) => Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 24.0),
-                                    child: Text(
-                                      (index * 20).toString().padLeft(2, '0'),
-                                      style: cupertinoTextStyle,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Flexible(child: Container()),
-                        ],
-                      ),
+                    DateTime? selection = await showDatePicker(
+                      context: context,
+                      initialDate: selectedTime,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2100),
+                    );
+                    if (selection != null) {
+                      appointmentController.updateStartTime(selection);
+                    }
+                  },
+                  child: Text(
+                    DateFormat("EEE, MMM dd yyyy", "tr_TR")
+                        .format(appointmentController.appointment.startTime),
+                  ),
+                ),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  ),
+                  onPressed: () {
+                    showModalBottomSheet<void>(
+                      context: context,
+                      isScrollControlled: true,
+                      enableDrag: true,
+                      builder: (_) => AppTimePicker(selectedTime: selectedTime),
                     );
                   },
                   child: Text(
@@ -163,50 +99,6 @@ class AppointmentView extends ConsumerWidget {
               ],
             ),
           ),
-          // labeledCard(
-          //   label: "Bitiş",
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //     children: [
-          //       Text(DateFormat("EEE, MMM dd yyyy")
-          //           .format(appointmentController.appointment.endTime)),
-          //       Text(DateFormat("Hm")
-          //           .format(appointmentController.appointment.endTime)),
-          //     ],
-          //   ),
-          // Row(
-          //   children: [
-          //     TextButton(
-          //       child: Text(
-          //         DateFormat("EEE, MMM dd yyyy")
-          //             .format(appointmentController.appointment.endTime),
-          //       ),
-          //       onPressed: () {},
-          //     ),
-          //
-          //     // TextButton(
-          //     //   child: Text(DateFormat("Hm")
-          //     //       .format(appointmentController.appointment.endTime)),
-          //     //   onPressed: () async {
-          //     //     // final TimeOfDay? selection = await showTimePicker(
-          //     //     //   context: context,
-          //     //     //   initialTime: TimeOfDay.fromDateTime(
-          //     //     //     appointmentController.appointment.endTime,
-          //     //     //   ),
-          //     //     // );
-          //     //     // if (selection != null) {
-          //     //     //   final DateTime date =
-          //     //     //       appointmentController.appointment.endTime;
-          //     //     //   appointmentController.updateEndTime(
-          //     //     //     DateTime(date.year, date.month, date.day,
-          //     //     //         selection.hour, selection.minute),
-          //     //     //   );
-          //     //     // }
-          //     //   },
-          //     // )
-          //   ],
-          // ),
-          // ),
           customDivider(),
           labeledCard(
             label: "Renk",
@@ -256,29 +148,6 @@ class AppointmentView extends ConsumerWidget {
       ),
     );
   }
-}
-
-void _showDialog(BuildContext context, Widget child) {
-  showCupertinoModalPopup<void>(
-    context: context,
-    builder: (BuildContext context) => Container(
-      height: 216,
-      // padding: const EdgeInsets.only(top: 6.0),
-      // The Bottom margin is provided to align the popup above the system navigation bar.
-      margin: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      // Provide a background color for the popup.
-      color: CupertinoColors.systemBackground.resolveFrom(context),
-      // Use a SafeArea widget to avoid system overlaps.
-      child: Scaffold(
-        body: SafeArea(
-          top: false,
-          child: child,
-        ),
-      ),
-    ),
-  );
 }
 
 Widget labeledCard({String label = "", required Widget child}) => Card(
