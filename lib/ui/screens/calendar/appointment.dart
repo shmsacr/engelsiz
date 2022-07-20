@@ -1,38 +1,49 @@
 import 'package:engelsiz/controller/calendar_controller.dart';
+import 'package:engelsiz/data/models/meeting_model.dart';
 import 'package:engelsiz/ui/screens/calendar/app_time_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class AppointmentView extends ConsumerWidget {
-  final DateTime selectedTime;
+  final Meeting? meeting;
 
   const AppointmentView({
-    required this.selectedTime,
+    this.meeting,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appointmentNotifier =
-        ref.watch(singleAppointmentProvider(selectedTime));
+    // final appointmentNotifier =
+    //     ref.watch(singleAppointmentProvider(appointment));
+    final meetingController = ref.watch(meetingProvider(meeting));
+    final meetingNotifier = ref.watch(meetingProvider(meeting).notifier);
     final eventsController = ref.watch(eventsProvider);
     return Scaffold(
       appBar: AppBar(
+        title: const Text("Toplantı"),
         elevation: 24.0,
-        backgroundColor: appointmentNotifier.appointment.color,
+        // backgroundColor: appointmentNotifier.appointment.color,
+        backgroundColor: meetingController.appColor.color,
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: () {
-              eventsController.appointments
-                  ?.add(appointmentNotifier.appointment);
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                eventsController.notifyListeners(CalendarDataSourceAction.add,
-                    <Appointment>[appointmentNotifier.appointment]);
-              });
+              if (meeting != null) {
+                debugPrint("Update case");
+                eventsController.appointments!.remove(meeting);
+                eventsController.notifyListeners(
+                    CalendarDataSourceAction.remove, <Meeting>[meeting!]);
+              }
+              eventsController.appointments?.add(meetingController);
+              // SchedulerBinding.instance.addPostFrameCallback((_) {
+              eventsController.notifyListeners(
+                  CalendarDataSourceAction.add, <Meeting>[meetingController]);
+              // });
+
+              // debugPrint(meetingController.toString());
               Navigator.of(context).pop();
             },
           )
@@ -47,7 +58,10 @@ class AppointmentView extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-              controller: appointmentNotifier.subjectController,
+              controller: meetingNotifier.subjectTextController,
+
+              // onChanged: (val) =>
+              //     _debounce(() => meetingNotifier.updateSubject(val)),
               decoration: const InputDecoration(
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -68,17 +82,17 @@ class AppointmentView extends ConsumerWidget {
                   onPressed: () async {
                     DateTime? selection = await showDatePicker(
                       context: context,
-                      initialDate: selectedTime,
+                      initialDate: meetingController.start,
                       firstDate: DateTime.now(),
                       lastDate: DateTime(2100),
                     );
                     if (selection != null) {
-                      appointmentNotifier.updateStartTime(selection);
+                      meetingNotifier.updateStartTime(selection);
                     }
                   },
                   child: Text(
                     DateFormat("EEE, MMM dd yyyy", "tr_TR")
-                        .format(appointmentNotifier.appointment.startTime),
+                        .format(meetingController.start),
                   ),
                 ),
                 TextButton(
@@ -91,11 +105,13 @@ class AppointmentView extends ConsumerWidget {
                       isScrollControlled: true,
                       enableDrag: true,
                       builder: (_) => AppTimePicker(
-                          appointmentNotifier: appointmentNotifier),
+                        // appointmentNotifier: appointmentNotifier,
+                        meeting: meeting,
+                      ),
                     );
                   },
                   child: Text(
-                      "${DateFormat("Hm").format(appointmentNotifier.appointment.startTime)} - ${DateFormat("Hm").format(appointmentNotifier.appointment.startTime.add(const Duration(minutes: 20)))}"),
+                      "${DateFormat("Hm").format(meetingController.start)} - ${DateFormat("Hm").format(meetingController.start.add(const Duration(minutes: 20)))}"),
                 )
               ],
             ),
@@ -116,7 +132,7 @@ class AppointmentView extends ConsumerWidget {
                           (appColor) => InkWell(
                             borderRadius: BorderRadius.circular(8.0),
                             onTap: () {
-                              appointmentNotifier.updateColor(appColor.color);
+                              meetingNotifier.updateColor(appColor);
                               Navigator.of(context).pop();
                             },
                             child: colorRow(appColor),
@@ -126,15 +142,17 @@ class AppointmentView extends ConsumerWidget {
                   ),
                 ),
               ),
-              child: colorRow(AppointmentColor.values.firstWhere(
-                  (e) => e.color == appointmentNotifier.appointment.color)),
+              child: colorRow(AppointmentColor.values
+                  .firstWhere((e) => e == meetingController.appColor)),
             ),
           ),
           customDivider(),
           ListTile(
             leading: const Icon(Icons.subject),
             title: TextField(
-              controller: appointmentNotifier.descriptionController,
+              controller: meetingNotifier.notesTextController,
+              // onChanged: (val) =>
+              //     _debounce(() => meetingNotifier.updateNotes(val)),
               keyboardType: TextInputType.multiline,
               maxLines: null,
               minLines: null,
@@ -192,3 +210,6 @@ Widget customDivider() => Column(
         SizedBox(height: 8.0),
       ],
     );
+
+DateTime midnightToNineAM(DateTime time) =>
+    time.hour == 0 ? time.add(const Duration(hours: 9)) : time;

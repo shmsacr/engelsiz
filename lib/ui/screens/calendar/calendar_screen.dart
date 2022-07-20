@@ -1,4 +1,5 @@
 import 'package:engelsiz/controller/calendar_controller.dart';
+import 'package:engelsiz/data/models/meeting_model.dart';
 import 'package:engelsiz/ui/screens/calendar/appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,8 +32,23 @@ class CalendarScreen extends ConsumerWidget {
           showAgenda: true,
         ),
         onTap: (calendarTapDetails) {
-          debugPrint(calendarTapDetails.targetElement.toString());
-          debugPrint(calendarTapDetails.date.toString());
+          if (calendarTapDetails.targetElement == CalendarElement.appointment) {
+            debugPrint(calendarTapDetails.targetElement.toString());
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) {
+                  Meeting meeting =
+                      calendarTapDetails.appointments![0] as Meeting;
+                  return AppointmentView(meeting: meeting);
+                },
+              ),
+            );
+            // debugPrint(eventsController
+            //     .getVisibleAppointments(
+            //         calendarTapDetails.date!, 'Turkey Standard Time')
+            //     .toString());
+          }
+          // debugPrint(calendarTapDetails.date.toString());
         },
       ),
       floatingActionButton: ref.watch(isSelectedBeforeTodayProvider)
@@ -44,9 +60,7 @@ class CalendarScreen extends ConsumerWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AppointmentView(
-                      selectedTime: calendarController.selectedDate!,
-                    ),
+                    builder: (context) => const AppointmentView(),
                   ),
                 );
               },

@@ -1,10 +1,13 @@
+import 'package:engelsiz/data/models/meeting_model.dart';
+import 'package:engelsiz/ui/screens/calendar/appointment.dart';
 import 'package:engelsiz/utils/datetime_ext.dart';
+import 'package:engelsiz/utils/debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 final eventsProvider = Provider<MeetingDataSource>(
-    (ref) => MeetingDataSource(List.empty(growable: true)));
+    (ref) => MeetingDataSource(List<Meeting>.empty(growable: true)));
 
 final calendarProvider = Provider<CalendarController>((ref) {
   final calendarController = CalendarController();
@@ -26,60 +29,97 @@ final calendarProvider = Provider<CalendarController>((ref) {
 
 final isSelectedBeforeTodayProvider = StateProvider<bool>((ref) => false);
 
-class AppointmentNotifier extends ChangeNotifier {
-  final Appointment appointment;
-  final TextEditingController subjectController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-
-  AppointmentNotifier({required DateTime startTime, DateTime? endTime})
-      : appointment = Appointment(
-          startTime: startTime,
-          endTime: endTime ?? startTime.add(const Duration(minutes: 20)),
-          color: AppointmentColor.green.color,
-        ) {
-    subjectController.addListener(_updateSubject);
-    descriptionController.addListener(_updateDescription);
+class MeetingNotifier extends StateNotifier<Meeting> {
+  MeetingNotifier(Meeting meeting) : super(meeting) {
+    subjectTextController.text = meeting.subject;
+    subjectTextController.addListener(() => _debounce(_updateSubject));
+    notesTextController.text = meeting.notes;
+    notesTextController.addListener(() => _debounce(_updateNotes));
   }
 
-  int? get startHour => appointment.startTime.hour;
-  int? get startMinute => appointment.startTime.minute;
+  final Debounce _debounce = Debounce();
+  final TextEditingController subjectTextController = TextEditingController();
+  final TextEditingController notesTextController = TextEditingController();
 
   void updateStartTime(DateTime startTime) {
-    final startTime_ = preventMidnight(startTime);
-    appointment.startTime = startTime_;
-    appointment.endTime = startTime_.add(const Duration(minutes: 20));
-    notifyListeners();
+    state = state.copyWith(
+        start: midnightToNineAM(startTime),
+        end: midnightToNineAM(startTime).add(const Duration(minutes: 20)));
   }
 
   void updateEndTime(DateTime endTime) {
-    appointment.endTime = endTime;
-    notifyListeners();
+    state = state.copyWith(end: endTime);
   }
 
-  void updateColor(Color color) {
-    appointment.color = color;
-    notifyListeners();
+  void updateColor(AppointmentColor appColor) {
+    state = state.copyWith(appColor: appColor);
   }
 
   void _updateSubject() {
-    appointment.subject = subjectController.text;
-    notifyListeners();
+    state = state.copyWith(subject: subjectTextController.text);
+    // subjectTextController.text;
   }
 
-  void _updateDescription() {
-    appointment.notes = descriptionController.text;
-    notifyListeners();
+  void _updateNotes() {
+    state = state.copyWith(notes: notesTextController.text);
   }
 }
 
-final singleAppointmentProvider =
-    ChangeNotifierProvider.family<AppointmentNotifier, DateTime>(
-        (ref, startTime) {
-  return AppointmentNotifier(startTime: preventMidnight(startTime));
+final meetingProvider = StateNotifierProvider.family
+    .autoDispose<MeetingNotifier, Meeting, Meeting?>((ref, meeting) {
+  return meeting == null
+      ? MeetingNotifier(Meeting(
+          start: midnightToNineAM(ref.watch(calendarProvider).selectedDate!),
+          end: midnightToNineAM(ref.watch(calendarProvider).selectedDate!)
+              .add(const Duration(minutes: 20))))
+      : MeetingNotifier(meeting);
 });
 
-DateTime preventMidnight(DateTime time) =>
-    time.hour == 0 ? time.add(const Duration(hours: 9)) : time;
+// class AppointmentNotifier extends ChangeNotifier {
+//   final Appointment appointment;
+//   final TextEditingController subjectController = TextEditingController();
+//   final TextEditingController descriptionController = TextEditingController();
+//
+//   AppointmentNotifier({required this.appointment, DateTime? endTime}) {
+//     subjectController.addListener(_updateSubject);
+//     descriptionController.addListener(_updateDescription);
+//   }
+//
+//   int? get startHour => appointment.startTime.hour;
+//   int? get startMinute => appointment.startTime.minute;
+//
+//   void updateStartTime(DateTime startTime) {
+//     appointment.startTime = startTime;
+//     appointment.endTime = startTime.add(const Duration(minutes: 20));
+//     notifyListeners();
+//   }
+//
+//   void updateEndTime(DateTime endTime) {
+//     appointment.endTime = endTime;
+//     notifyListeners();
+//   }
+//
+//   void updateColor(Color color) {
+//     appointment.color = color;
+//     notifyListeners();
+//   }
+//
+//   void _updateSubject() {
+//     appointment.subject = subjectController.text;
+//     notifyListeners();
+//   }
+//
+//   void _updateDescription() {
+//     appointment.notes = descriptionController.text;
+//     notifyListeners();
+//   }
+// }
+//
+// final singleAppointmentProvider =
+//     ChangeNotifierProvider.family<AppointmentNotifier, Appointment>(
+//         (ref, appointment) {
+//   return AppointmentNotifier(appointment: appointment);
+// });
 
 enum AppointmentColor {
   green(Color.fromRGBO(15, 134, 68, 1), "Yeşil"),
@@ -100,64 +140,78 @@ enum AppointmentColor {
 class MeetingDataSource extends CalendarDataSource {
   /// Creates a meeting data source, which used to set the appointment
   /// collection to the calendar
-  MeetingDataSource(List<Appointment> source) {
+  MeetingDataSource(List<Meeting> source) {
     appointments = source;
   }
 
   @override
   DateTime getStartTime(int index) {
-    return appointments![index].from;
+    return appointments![index].start;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return appointments![index].to;
+    return appointments![index].end;
   }
 
-  @override
-  bool isAllDay(int index) {
-    return appointments![index].isAllDay;
-  }
+  // @override
+  // bool isAllDay(int index) {
+  //   return appointments![index].isAllDay;
+  // }
 
   @override
   String getSubject(int index) {
-    return appointments![index].eventName;
+    return appointments![index].subject;
   }
 
   @override
-  String getStartTimeZone(int index) {
-    return appointments![index].startTimeZone;
+  String getNotes(int index) {
+    return appointments![index].notes;
   }
 
-  @override
-  String getEndTimeZone(int index) {
-    return appointments![index].endTimeZone;
-  }
+  // @override
+  // String getStartTimeZone(int index) {
+  //   return appointments![index].startTimeZone;
+  // }
+  //
+  // @override
+  // String getEndTimeZone(int index) {
+  //   return appointments![index].endTimeZone;
+  // }
 
   @override
   Color getColor(int index) {
-    return appointments![index].background;
+    return appointments![index].appColor.color;
   }
 }
 
 /// Custom business object class which contains properties to hold the detailed
 /// information about the event data which will be rendered in calendar.
-class Meeting {
-  /// Creates a meeting class with required details.
-  Meeting(this.eventName, this.from, this.to, this.background, this.isAllDay);
-
-  /// Event name which is equivalent to subject property of [Appointment].
-  String eventName;
-
-  /// From which is equivalent to start time property of [Appointment].
-  DateTime from;
-
-  /// To which is equivalent to end time property of [Appointment].
-  DateTime to;
-
-  /// Background which is equivalent to color property of [Appointment].
-  Color background;
-
-  /// IsAllDay which is equivalent to isAllDay property of [Appointment].
-  bool isAllDay;
-}
+// @immutable
+// class Meeting {
+//   /// Creates a meeting class with required details.
+//   const Meeting(
+//       {this.eventName = '',
+//       required this.from,
+//       required this.to,
+//       this.background = AppointmentColor.green,
+//       this.isAllDay = false,
+//       this.notes = ''});
+//
+//   /// Event name which is equivalent to subject property of [Appointment].
+//   final String eventName;
+//
+//   /// From which is equivalent to start time property of [Appointment].
+//   final DateTime from;
+//
+//   /// To which is equivalent to end time property of [Appointment].
+//   final DateTime to;
+//
+//   /// Background which is equivalent to color property of [Appointment].
+//   final AppointmentColor background;
+//
+//   /// IsAllDay which is equivalent to isAllDay property of [Appointment].
+//   final bool isAllDay;
+//
+//   final String notes;
+// }
