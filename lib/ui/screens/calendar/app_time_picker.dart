@@ -30,14 +30,14 @@ class AppTimePicker extends ConsumerWidget {
               flex: 2,
               child: CupertinoPicker(
                 itemExtent: 36,
-                scrollController: FixedExtentScrollController(initialItem: 1),
+                scrollController: FixedExtentScrollController(
+                  initialItem: meeting == null ? 1 : meeting!.start.hour - 8,
+                ),
                 onSelectedItemChanged: (value) {
-                  // appointmentNotifier.updateStartTime(
-                  //     DateTimeExt(appointmentNotifier.appointment.startTime)
-                  //         .copyWith(hour: value + 8));
                   meetingNotifier.updateStartTime(
-                      DateTimeExt(meetingController.start)
-                          .copyWith(hour: value + 8));
+                    DateTimeExt(meetingController.start)
+                        .copyWith(hour: value + 8),
+                  );
                 },
                 children: List<Widget>.generate(
                   10,
@@ -64,14 +64,16 @@ class AppTimePicker extends ConsumerWidget {
                 itemExtent: 36,
                 offAxisFraction: 0.75,
                 onSelectedItemChanged: (value) {
-                  // appointmentNotifier.updateStartTime(
-                  //     DateTimeExt(appointmentNotifier.appointment.startTime)
-                  //         .copyWith(minute: value * 20));
                   meetingNotifier.updateStartTime(
                       DateTimeExt(meetingController.start)
                           .copyWith(minute: value * 20));
                 },
                 childCount: 3,
+                scrollController: FixedExtentScrollController(
+                  initialItem: meeting == null
+                      ? 0
+                      : (meeting!.start.minute / 20).round(),
+                ),
                 itemBuilder: (context, index) => Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
