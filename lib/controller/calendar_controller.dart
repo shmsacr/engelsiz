@@ -43,8 +43,7 @@ class MeetingNotifier extends StateNotifier<Meeting> {
 
   void updateStartTime(DateTime startTime) {
     state = state.copyWith(
-        start: midnightToNineAM(startTime),
-        end: midnightToNineAM(startTime).add(const Duration(minutes: 20)));
+        start: startTime, end: startTime.add(const Duration(minutes: 20)));
   }
 
   void updateEndTime(DateTime endTime) {
@@ -57,7 +56,6 @@ class MeetingNotifier extends StateNotifier<Meeting> {
 
   void _updateSubject() {
     state = state.copyWith(subject: subjectTextController.text);
-    // subjectTextController.text;
   }
 
   void _updateNotes() {
@@ -67,59 +65,20 @@ class MeetingNotifier extends StateNotifier<Meeting> {
 
 final meetingProvider = StateNotifierProvider.family
     .autoDispose<MeetingNotifier, Meeting, Meeting?>((ref, meeting) {
-  return meeting == null
-      ? MeetingNotifier(Meeting(
-          start: midnightToNineAM(ref.watch(calendarProvider).selectedDate!),
-          end: midnightToNineAM(ref.watch(calendarProvider).selectedDate!)
-              .add(const Duration(minutes: 20))))
-      : MeetingNotifier(meeting);
+  if (meeting != null) return MeetingNotifier(meeting);
+  DateTime startTime =
+      midnightToEightAM(ref.watch(calendarProvider).selectedDate!);
+  final List<TimeOfDay> filledPeriods_ = filledPeriods(
+    ref.watch(eventsProvider),
+    ref.watch(calendarProvider).selectedDate!,
+  );
+  while (filledPeriods_.contains(TimeOfDay.fromDateTime(startTime))) {
+    startTime = startTime.add(const Duration(minutes: 20));
+  }
+  return MeetingNotifier(
+    Meeting(start: startTime, end: startTime.add(const Duration(minutes: 20))),
+  );
 });
-
-// class AppointmentNotifier extends ChangeNotifier {
-//   final Appointment appointment;
-//   final TextEditingController subjectController = TextEditingController();
-//   final TextEditingController descriptionController = TextEditingController();
-//
-//   AppointmentNotifier({required this.appointment, DateTime? endTime}) {
-//     subjectController.addListener(_updateSubject);
-//     descriptionController.addListener(_updateDescription);
-//   }
-//
-//   int? get startHour => appointment.startTime.hour;
-//   int? get startMinute => appointment.startTime.minute;
-//
-//   void updateStartTime(DateTime startTime) {
-//     appointment.startTime = startTime;
-//     appointment.endTime = startTime.add(const Duration(minutes: 20));
-//     notifyListeners();
-//   }
-//
-//   void updateEndTime(DateTime endTime) {
-//     appointment.endTime = endTime;
-//     notifyListeners();
-//   }
-//
-//   void updateColor(Color color) {
-//     appointment.color = color;
-//     notifyListeners();
-//   }
-//
-//   void _updateSubject() {
-//     appointment.subject = subjectController.text;
-//     notifyListeners();
-//   }
-//
-//   void _updateDescription() {
-//     appointment.notes = descriptionController.text;
-//     notifyListeners();
-//   }
-// }
-//
-// final singleAppointmentProvider =
-//     ChangeNotifierProvider.family<AppointmentNotifier, Appointment>(
-//         (ref, appointment) {
-//   return AppointmentNotifier(appointment: appointment);
-// });
 
 enum AppointmentColor {
   green(Color.fromRGBO(15, 134, 68, 1), "Yeşil"),
@@ -183,6 +142,24 @@ class MeetingDataSource extends CalendarDataSource {
   Color getColor(int index) {
     return appointments![index].appColor.color;
   }
+}
+
+DateTime midnightToEightAM(DateTime time) =>
+    time.hour == 0 ? time.add(const Duration(hours: 8)) : time;
+
+List<TimeOfDay> filledPeriods(
+    MeetingDataSource eventsController, DateTime meetingStart) {
+  /// Calculates which periods are already filled
+  /// Returns their startTimes as TimeOfDay
+  return eventsController
+      .getVisibleAppointments(meetingStart, 'Turkey Standard Time')
+      .map((m) => List.generate(
+          (m.endTime.difference(m.startTime) / const Duration(minutes: 20))
+              .ceil(),
+          (i) => TimeOfDay.fromDateTime(
+              m.startTime.add(Duration(minutes: i * 20)))))
+      .expand((e) => e)
+      .toList();
 }
 
 /// Custom business object class which contains properties to hold the detailed

@@ -6,6 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+extension DurationDivision on Duration {
+  double operator /(Duration other) => inMicroseconds / other.inMicroseconds;
+}
+
 class AppointmentView extends ConsumerWidget {
   final Meeting? meeting;
 
@@ -16,8 +20,6 @@ class AppointmentView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final appointmentNotifier =
-    //     ref.watch(singleAppointmentProvider(appointment));
     final meetingController = ref.watch(meetingProvider(meeting));
     final meetingNotifier = ref.watch(meetingProvider(meeting).notifier);
     final eventsController = ref.watch(eventsProvider);
@@ -104,10 +106,7 @@ class AppointmentView extends ConsumerWidget {
                       context: context,
                       isScrollControlled: true,
                       enableDrag: true,
-                      builder: (_) => AppTimePicker(
-                        // appointmentNotifier: appointmentNotifier,
-                        meeting: meeting,
-                      ),
+                      builder: (_) => AppTimePicker(meeting: meeting),
                     );
                   },
                   child: Text(
@@ -210,6 +209,3 @@ Widget customDivider() => Column(
         SizedBox(height: 8.0),
       ],
     );
-
-DateTime midnightToNineAM(DateTime time) =>
-    time.hour == 0 ? time.add(const Duration(hours: 9)) : time;
