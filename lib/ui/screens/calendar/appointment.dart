@@ -1,6 +1,7 @@
 import 'package:engelsiz/controller/calendar_controller.dart';
 import 'package:engelsiz/data/models/meeting_model.dart';
 import 'package:engelsiz/ui/screens/calendar/app_time_picker.dart';
+import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +25,7 @@ class AppointmentView extends ConsumerWidget {
     final meetingNotifier = ref.watch(meetingProvider(meeting).notifier);
     final eventsController = ref.watch(eventsProvider);
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Toplantı"),
         elevation: 24.0,
@@ -34,7 +36,6 @@ class AppointmentView extends ConsumerWidget {
             icon: const Icon(Icons.check),
             onPressed: () {
               if (meeting != null) {
-                debugPrint("Update case");
                 eventsController.appointments!.remove(meeting);
                 eventsController.notifyListeners(
                     CalendarDataSourceAction.remove, <Meeting>[meeting!]);
@@ -55,118 +56,157 @@ class AppointmentView extends ConsumerWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: meetingNotifier.subjectTextController,
-
-              // onChanged: (val) =>
-              //     _debounce(() => meetingNotifier.updateSubject(val)),
-              decoration: const InputDecoration(
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                hintText: 'Konu Ekle...',
-              ),
-            ),
-          ),
-          customDivider(),
-          labeledCard(
-            label: "Zaman",
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextButton(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  ),
-                  onPressed: () async {
-                    DateTime? selection = await showDatePicker(
-                      context: context,
-                      initialDate: meetingController.start,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2100),
-                    );
-                    if (selection != null) {
-                      meetingNotifier.updateStartTime(selection);
-                    }
-                  },
-                  child: Text(
-                    DateFormat("EEE, MMM dd yyyy", "tr_TR")
-                        .format(meetingController.start),
-                  ),
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  ),
-                  onPressed: () {
-                    showModalBottomSheet<void>(
-                      context: context,
-                      isScrollControlled: true,
-                      enableDrag: true,
-                      builder: (_) => AppTimePicker(meeting: meeting),
-                    );
-                  },
-                  child: Text(
-                      "${DateFormat("Hm").format(meetingController.start)} - ${DateFormat("Hm").format(meetingController.start.add(const Duration(minutes: 20)))}"),
-                )
-              ],
-            ),
-          ),
-          customDivider(),
-          labeledCard(
-            label: "Renk",
-            child: InkWell(
-              onTap: () => showDialog<String>(
-                context: context,
-                builder: (BuildContext context) => AlertDialog(
-                  title: const Text('Renk Seçin'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: AppointmentColor.values
-                        .map(
-                          (appColor) => InkWell(
-                            borderRadius: BorderRadius.circular(8.0),
-                            onTap: () {
-                              meetingNotifier.updateColor(appColor);
-                              Navigator.of(context).pop();
-                            },
-                            child: colorRow(appColor),
-                          ),
-                        )
-                        .toList(),
+          ListView(
+            shrinkWrap: true,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: meetingNotifier.subjectTextController,
+                  decoration: const InputDecoration(
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: 'Konu Ekle...',
                   ),
                 ),
               ),
-              child: colorRow(AppointmentColor.values
-                  .firstWhere((e) => e == meetingController.appColor)),
-            ),
+              customDivider(),
+              labeledCard(
+                label: "Zaman",
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      ),
+                      onPressed: () async {
+                        DateTime? selection = await showDatePicker(
+                          context: context,
+                          initialDate: meetingController.start,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2100),
+                        );
+                        if (selection != null) {
+                          meetingNotifier.updateStartTime(selection);
+                        }
+                      },
+                      child: Text(
+                        DateFormat("EEE, MMM dd yyyy", "tr_TR")
+                            .format(meetingController.start),
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      ),
+                      onPressed: () {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          isScrollControlled: true,
+                          enableDrag: true,
+                          builder: (_) => AppTimePicker(meeting: meeting),
+                        );
+                      },
+                      child: Text(
+                          "${DateFormat("Hm").format(meetingController.start)} - ${DateFormat("Hm").format(meetingController.start.add(const Duration(minutes: 20)))}"),
+                    )
+                  ],
+                ),
+              ),
+              customDivider(),
+              labeledCard(
+                label: "Renk",
+                child: InkWell(
+                  onTap: () => showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Renk Seçin'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: AppointmentColor.values
+                            .map(
+                              (appColor) => InkWell(
+                                borderRadius: BorderRadius.circular(8.0),
+                                onTap: () {
+                                  meetingNotifier.updateColor(appColor);
+                                  Navigator.of(context).pop();
+                                },
+                                child: colorRow(appColor),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                  child: colorRow(AppointmentColor.values
+                      .firstWhere((e) => e == meetingController.appColor)),
+                ),
+              ),
+              customDivider(),
+              ListTile(
+                leading: const Icon(Icons.subject),
+                title: TextField(
+                  controller: meetingNotifier.notesTextController,
+                  // onChanged: (val) =>
+                  //     _debounce(() => meetingNotifier.updateNotes(val)),
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  minLines: null,
+                  decoration: const InputDecoration(
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: "Açıklama Ekle...",
+                  ),
+                ),
+              ),
+            ],
           ),
-          customDivider(),
-          ListTile(
-            leading: const Icon(Icons.subject),
-            title: TextField(
-              controller: meetingNotifier.notesTextController,
-              // onChanged: (val) =>
-              //     _debounce(() => meetingNotifier.updateNotes(val)),
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              minLines: null,
-              decoration: const InputDecoration(
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                hintText: "Açıklama Ekle...",
+          if (meeting != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: AppColors.error),
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Dikkat'),
+                    content: Text(
+                        "${meetingTime(meeting!)} saatli randevuyu silmek istediğinize emin misiniz?"),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Vazgeç'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          eventsController.appointments!.remove(meeting);
+                          eventsController.notifyListeners(
+                              CalendarDataSourceAction.remove,
+                              <Meeting>[meeting!]);
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Evet'),
+                      ),
+                    ],
+                  ),
+                ),
+                child: const Text("Randevu Sil"),
               ),
             ),
-          )
         ],
       ),
     );
   }
 }
+
+String meetingTime(Meeting meeting) =>
+    "${meeting.start.hour.toString().padLeft(2, '0')}:${meeting.start.minute.toString().padLeft(2, '0')} - ${meeting.end.hour.toString().padLeft(2, '0')}:${meeting.end.minute.toString().padLeft(2, '0')}";
 
 Widget labeledCard({String label = "", required Widget child}) => Card(
       elevation: 1.0,

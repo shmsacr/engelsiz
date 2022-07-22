@@ -10,8 +10,6 @@ class CalendarScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final calendarFormat = ref.watch(CalendarController.format);
-    // final selectedDay_ = ref.watch(CalendarController.selectedDay);
     final eventsController = ref.watch(eventsProvider);
     final calendarController = ref.watch(calendarProvider);
     return Scaffold(
@@ -26,7 +24,6 @@ class CalendarScreen extends ConsumerWidget {
         timeSlotViewSettings: const TimeSlotViewSettings(timeFormat: 'HH:mm'),
         cellEndPadding: 0,
         appointmentTimeTextFormat: 'HH:mm',
-        // appointmentTextStyle: TextStyle(fontSize: 36),
         monthViewSettings: const MonthViewSettings(
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
           showAgenda: true,
@@ -43,12 +40,7 @@ class CalendarScreen extends ConsumerWidget {
                 },
               ),
             );
-            // debugPrint(eventsController
-            //     .getVisibleAppointments(
-            //         calendarTapDetails.date!, 'Turkey Standard Time')
-            //     .toString());
           }
-          // debugPrint(calendarTapDetails.date.toString());
         },
       ),
       floatingActionButton: ref.watch(isSelectedBeforeTodayProvider)

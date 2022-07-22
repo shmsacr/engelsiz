@@ -36,9 +36,9 @@ class AppTimePicker extends ConsumerWidget {
     _updateStartTime() {
       final selectedHour = hourController.selectedItem + 8;
       final selectedMinute = minuteController.selectedItem * 20;
-      List<int> validMinutes = selectValidMinutesOfAHour(
+      final List<int> validMinutes = selectValidMinutesOfAHour(
           filledTimes, selectedHour, meeting?.start.minute);
-      List<int> validHours = selectValidHoursOfAMinute(
+      final List<int> validHours = selectValidHoursOfAMinute(
           filledTimes, selectedMinute, meeting?.start.hour);
       if (validHours.contains(selectedHour) &&
           validMinutes.contains(selectedMinute)) {
