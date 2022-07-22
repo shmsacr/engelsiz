@@ -17,10 +17,33 @@ final calendarProvider = Provider<CalendarController>((ref) {
   calendarController.displayDate = today;
   calendarController.addPropertyChangedListener(
     (property) {
-      if (property == "selectedDate" &&
-          calendarController.selectedDate != null) {
-        ref.read(isSelectedBeforeTodayProvider.notifier).update(
-            (state) => calendarController.selectedDate!.isBefore(today));
+      if (calendarController.selectedDate == null) return;
+
+      DateTime selectedDate = calendarController.selectedDate!;
+      if (property == "calendarView" &&
+          calendarController.view == CalendarView.week) {
+        calendarController.selectedDate =
+            selectedDate = selectedDate.copyWith(hour: 8, minute: 0);
+        calendarController.displayDate =
+            selectedDate.copyWith(hour: 8, minute: 0);
+      }
+      if (property == "selectedDate") {
+        ref
+            .read(isSelectedBeforeTodayProvider.notifier)
+            .update((state) => selectedDate.isBefore(today));
+        if (calendarController.view == CalendarView.week) {
+          ref.read(isSelectedInWorkingHours.notifier).update((state) =>
+              selectedDate
+                  .isAfter(selectedDate.copyWith(hour: 7, minute: 59)) &&
+              selectedDate
+                  .isBefore(selectedDate.copyWith(hour: 18, minute: 0)));
+          // timeOfDayToDouble(TimeOfDay.fromDateTime(selectedDate)) >
+          //     timeOfDayToDouble(const TimeOfDay(hour: 8, minute: 0)) &&
+          // timeOfDayToDouble(TimeOfDay.fromDateTime(selectedDate)) <
+          //     timeOfDayToDouble(const TimeOfDay(hour: 17, minute: 0)));
+        } else {
+          ref.read(isSelectedInWorkingHours.notifier).update((state) => true);
+        }
       }
     },
   );
@@ -28,6 +51,10 @@ final calendarProvider = Provider<CalendarController>((ref) {
 });
 
 final isSelectedBeforeTodayProvider = StateProvider<bool>((ref) => false);
+final isSelectedInWorkingHours = StateProvider<bool>((ref) => true);
+
+double timeOfDayToDouble(TimeOfDay myTime) =>
+    myTime.hour + myTime.minute / 60.0;
 
 class MeetingNotifier extends StateNotifier<Meeting> {
   MeetingNotifier(Meeting meeting) : super(meeting) {
