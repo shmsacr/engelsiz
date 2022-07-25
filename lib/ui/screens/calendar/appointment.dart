@@ -1,40 +1,52 @@
 import 'package:engelsiz/controller/calendar_controller.dart';
-import 'package:engelsiz/utils/datetime_ext.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:engelsiz/data/models/meeting_model.dart';
+import 'package:engelsiz/ui/screens/calendar/app_time_picker.dart';
+import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+extension DurationDivision on Duration {
+  double operator /(Duration other) => inMicroseconds / other.inMicroseconds;
+}
+
 class AppointmentView extends ConsumerWidget {
-  final DateTime selectedTime;
+  final Meeting? meeting;
 
   const AppointmentView({
-    required this.selectedTime,
+    this.meeting,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appointmentController =
-        ref.watch(singleAppointmentProvider(selectedTime));
+    final meetingController = ref.watch(meetingProvider(meeting));
+    final meetingNotifier = ref.watch(meetingProvider(meeting).notifier);
     final eventsController = ref.watch(eventsProvider);
-    final cupertinoTextStyle = Theme.of(context).textTheme.headlineSmall;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        title: const Text("Toplantı"),
         elevation: 24.0,
-        backgroundColor: appointmentController.appointment.color,
+        // backgroundColor: appointmentNotifier.appointment.color,
+        backgroundColor: meetingController.appColor.color,
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: () {
-              eventsController.appointments
-                  ?.add(appointmentController.appointment);
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                eventsController.notifyListeners(CalendarDataSourceAction.add,
-                    <Appointment>[appointmentController.appointment]);
-              });
+              if (meeting != null) {
+                eventsController.appointments!.remove(meeting);
+                eventsController.notifyListeners(
+                    CalendarDataSourceAction.remove, <Meeting>[meeting!]);
+              }
+              eventsController.appointments?.add(meetingController);
+              // SchedulerBinding.instance.addPostFrameCallback((_) {
+              eventsController.notifyListeners(
+                  CalendarDataSourceAction.add, <Meeting>[meetingController]);
+              // });
+
+              // debugPrint(meetingController.toString());
               Navigator.of(context).pop();
             },
           )
@@ -44,242 +56,157 @@ class AppointmentView extends ConsumerWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: appointmentController.subjectController,
-              decoration: const InputDecoration(
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                hintText: 'Konu Ekle...',
-              ),
-            ),
-          ),
-          customDivider(),
-          labeledCard(
-            label: "Zaman",
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextButton(
-                    child: Text(
-                      DateFormat("EEE, MMM dd yyyy", "tr_TR")
-                          .format(appointmentController.appointment.startTime),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    ),
-                    onPressed: () async {
-                      DateTime? selection = await showDatePicker(
-                        context: context,
-                        initialDate: selectedTime,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime(2100),
-                      );
-                      if (selection != null) {
-                        appointmentController.updateStartTime(selection);
-                      }
-                    }),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  ),
-                  onPressed: () async {
-                    _showDialog(
-                      context,
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Flexible(child: Container()),
-                          Flexible(
-                            flex: 2,
-                            child: CupertinoPicker(
-                              itemExtent: 36,
-                              scrollController:
-                                  FixedExtentScrollController(initialItem: 1),
-                              onSelectedItemChanged: (value) {
-                                appointmentController.updateStartTime(
-                                    DateTimeExt(appointmentController
-                                            .appointment.startTime)
-                                        .copyWith(hour: value + 8));
-                              },
-                              children: List<Widget>.generate(
-                                10,
-                                (int index) => Material(
-                                  type: MaterialType.transparency,
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 24.0),
-                                      child: Text(
-                                        (index + 8).toString().padLeft(2, '0'),
-                                        style: cupertinoTextStyle,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Text(":", style: cupertinoTextStyle),
-                          Flexible(
-                            flex: 2,
-                            child: CupertinoPicker(
-                              offAxisFraction: 0.75,
-                              itemExtent: 36,
-                              onSelectedItemChanged: (value) {
-                                debugPrint((value * 20).toString());
-                                appointmentController.updateStartTime(
-                                    DateTimeExt(appointmentController
-                                            .appointment.startTime)
-                                        .copyWith(minute: value * 20));
-                              },
-                              children: List<Widget>.generate(
-                                3,
-                                (int index) => Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 24.0),
-                                    child: Text(
-                                      (index * 20).toString().padLeft(2, '0'),
-                                      style: cupertinoTextStyle,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Flexible(child: Container()),
-                        ],
-                      ),
-                    );
-                  },
-                  child: Text(
-                      "${DateFormat("Hm").format(appointmentController.appointment.startTime)} - ${DateFormat("Hm").format(appointmentController.appointment.startTime.add(const Duration(minutes: 20)))}"),
-                )
-              ],
-            ),
-          ),
-          // labeledCard(
-          //   label: "Bitiş",
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //     children: [
-          //       Text(DateFormat("EEE, MMM dd yyyy")
-          //           .format(appointmentController.appointment.endTime)),
-          //       Text(DateFormat("Hm")
-          //           .format(appointmentController.appointment.endTime)),
-          //     ],
-          //   ),
-          // Row(
-          //   children: [
-          //     TextButton(
-          //       child: Text(
-          //         DateFormat("EEE, MMM dd yyyy")
-          //             .format(appointmentController.appointment.endTime),
-          //       ),
-          //       onPressed: () {},
-          //     ),
-          //
-          //     // TextButton(
-          //     //   child: Text(DateFormat("Hm")
-          //     //       .format(appointmentController.appointment.endTime)),
-          //     //   onPressed: () async {
-          //     //     // final TimeOfDay? selection = await showTimePicker(
-          //     //     //   context: context,
-          //     //     //   initialTime: TimeOfDay.fromDateTime(
-          //     //     //     appointmentController.appointment.endTime,
-          //     //     //   ),
-          //     //     // );
-          //     //     // if (selection != null) {
-          //     //     //   final DateTime date =
-          //     //     //       appointmentController.appointment.endTime;
-          //     //     //   appointmentController.updateEndTime(
-          //     //     //     DateTime(date.year, date.month, date.day,
-          //     //     //         selection.hour, selection.minute),
-          //     //     //   );
-          //     //     // }
-          //     //   },
-          //     // )
-          //   ],
-          // ),
-          // ),
-          customDivider(),
-          labeledCard(
-            label: "Renk",
-            child: InkWell(
-              onTap: () => showDialog<String>(
-                context: context,
-                builder: (BuildContext context) => AlertDialog(
-                  title: const Text('Renk Seçin'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: AppointmentColor.values
-                        .map(
-                          (appColor) => InkWell(
-                            borderRadius: BorderRadius.circular(8.0),
-                            onTap: () {
-                              appointmentController.updateColor(appColor.color);
-                              Navigator.of(context).pop();
-                            },
-                            child: colorRow(appColor),
-                          ),
-                        )
-                        .toList(),
+          ListView(
+            shrinkWrap: true,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: meetingNotifier.subjectTextController,
+                  decoration: const InputDecoration(
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: 'Konu Ekle...',
                   ),
                 ),
               ),
-              child: colorRow(AppointmentColor.values.firstWhere(
-                  (e) => e.color == appointmentController.appointment.color)),
-            ),
+              customDivider(),
+              labeledCard(
+                label: "Zaman",
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      ),
+                      onPressed: () async {
+                        DateTime? selection = await showDatePicker(
+                          context: context,
+                          initialDate: meetingController.start,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2100),
+                        );
+                        if (selection != null) {
+                          meetingNotifier.updateStartTime(selection);
+                        }
+                      },
+                      child: Text(
+                        DateFormat("EEE, MMM dd yyyy", "tr_TR")
+                            .format(meetingController.start),
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      ),
+                      onPressed: () {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          isScrollControlled: true,
+                          enableDrag: true,
+                          builder: (_) => AppTimePicker(meeting: meeting),
+                        );
+                      },
+                      child: Text(
+                          "${DateFormat("Hm").format(meetingController.start)} - ${DateFormat("Hm").format(meetingController.start.add(const Duration(minutes: 20)))}"),
+                    )
+                  ],
+                ),
+              ),
+              customDivider(),
+              labeledCard(
+                label: "Renk",
+                child: InkWell(
+                  onTap: () => showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Renk Seçin'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: AppointmentColor.values
+                            .map(
+                              (appColor) => InkWell(
+                                borderRadius: BorderRadius.circular(8.0),
+                                onTap: () {
+                                  meetingNotifier.updateColor(appColor);
+                                  Navigator.of(context).pop();
+                                },
+                                child: colorRow(appColor),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                  child: colorRow(AppointmentColor.values
+                      .firstWhere((e) => e == meetingController.appColor)),
+                ),
+              ),
+              customDivider(),
+              ListTile(
+                leading: const Icon(Icons.subject),
+                title: TextField(
+                  controller: meetingNotifier.notesTextController,
+                  // onChanged: (val) =>
+                  //     _debounce(() => meetingNotifier.updateNotes(val)),
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  minLines: null,
+                  decoration: const InputDecoration(
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: "Açıklama Ekle...",
+                  ),
+                ),
+              ),
+            ],
           ),
-          customDivider(),
-          ListTile(
-            leading: const Icon(Icons.subject),
-            title: TextField(
-              controller: appointmentController.descriptionController,
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              minLines: null,
-              decoration: const InputDecoration(
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                hintText: "Açıklama Ekle...",
+          if (meeting != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: AppColors.error),
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Dikkat'),
+                    content: Text(
+                        "${meetingTime(meeting!)} saatli randevuyu silmek istediğinize emin misiniz?"),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Vazgeç'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          eventsController.appointments!.remove(meeting);
+                          eventsController.notifyListeners(
+                              CalendarDataSourceAction.remove,
+                              <Meeting>[meeting!]);
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Evet'),
+                      ),
+                    ],
+                  ),
+                ),
+                child: const Text("Randevu Sil"),
               ),
             ),
-          )
         ],
       ),
     );
   }
 }
 
-void _showDialog(BuildContext context, Widget child) {
-  showCupertinoModalPopup<void>(
-    context: context,
-    builder: (BuildContext context) => Container(
-      height: 216,
-      // padding: const EdgeInsets.only(top: 6.0),
-      // The Bottom margin is provided to align the popup above the system navigation bar.
-      margin: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      // Provide a background color for the popup.
-      color: CupertinoColors.systemBackground.resolveFrom(context),
-      // Use a SafeArea widget to avoid system overlaps.
-      child: Scaffold(
-        body: SafeArea(
-          top: false,
-          child: child,
-        ),
-      ),
-    ),
-  );
-}
+String meetingTime(Meeting meeting) =>
+    "${meeting.start.hour.toString().padLeft(2, '0')}:${meeting.start.minute.toString().padLeft(2, '0')} - ${meeting.end.hour.toString().padLeft(2, '0')}:${meeting.end.minute.toString().padLeft(2, '0')}";
 
 Widget labeledCard({String label = "", required Widget child}) => Card(
       elevation: 1.0,
