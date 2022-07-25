@@ -178,7 +178,8 @@ List<TimeOfDay> filledPeriods(
     MeetingDataSource eventsController, DateTime meetingStart) {
   /// Calculates which periods are already filled
   /// Returns their startTimes as TimeOfDay
-  return eventsController
+
+  final List<TimeOfDay> filled = eventsController
       .getVisibleAppointments(meetingStart, 'Turkey Standard Time')
       .map((m) => List.generate(
           (m.endTime.difference(m.startTime) / const Duration(minutes: 20))
@@ -187,6 +188,15 @@ List<TimeOfDay> filledPeriods(
               m.startTime.add(Duration(minutes: i * 20)))))
       .expand((e) => e)
       .toList();
+  DateTime now = DateTime.now();
+  if (!meetingStart.isSameDate(now)) return filled;
+  Set<TimeOfDay> extendedPeriods = Set<TimeOfDay>.from(filled);
+  DateTime period = meetingStart.copyWith(hour: 8, minute: 0);
+  while (period.isBefore(now)) {
+    extendedPeriods.add(TimeOfDay(hour: period.hour, minute: period.minute));
+    period = period.add(const Duration(hours: 0, minutes: 20));
+  }
+  return extendedPeriods.toList();
 }
 
 /// Custom business object class which contains properties to hold the detailed
