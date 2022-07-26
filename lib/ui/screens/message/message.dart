@@ -32,7 +32,6 @@ class MessageScreen extends StatelessWidget {
           ),
         ),
       ),
-
       body: CustomScrollView(
         slivers: [
           SliverList(
@@ -65,7 +64,7 @@ class _MessageTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: (){
+      onTap: () {
         Navigator.of(context).push(ChatScreen.route(messageData));
       },
       child: Container(
@@ -109,8 +108,8 @@ class _MessageTitle extends StatelessWidget {
                       child: Text(
                         messageData.message,
                         overflow: TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(fontSize: 12, color: AppColors.textFaded),
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textFaded),
                       ),
                     ),
                   ],
@@ -143,7 +142,8 @@ class _MessageTitle extends StatelessWidget {
                       child: const Center(
                         child: Text(
                           '1',
-                          style: TextStyle(fontSize: 10, color: AppColors.textLigth),
+                          style: TextStyle(
+                              fontSize: 10, color: AppColors.textLight),
                         ),
                       ),
                     )

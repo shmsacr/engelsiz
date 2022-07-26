@@ -22,13 +22,14 @@ dependencies:
   cached_network_image: ^3.2.1
   faker: ^2.0.0
   jiffy: ^5.0.0
-
   intl: ^0.17.0
   syncfusion_flutter_calendar: ^20.2.38
   stream_chat_flutter_core: ^4.4.0
   logger: ^1.1.0
   freezed_annotation: ^2.1.0
   json_annotation: ^4.6.0
+  flutter_login: ^4.0.0
+  firebase_auth: ^3.5.1
 
 dev_dependencies:
   flutter_test:
@@ -43,9 +44,8 @@ flutter:
 
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

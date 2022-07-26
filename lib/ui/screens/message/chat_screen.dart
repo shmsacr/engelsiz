@@ -1,4 +1,3 @@
-
 import 'package:engelsiz/ui/screens/message/widgets/glowing_action_button.dart';
 import 'package:engelsiz/ui/screens/message/widgets/icon_buttons.dart';
 import 'package:engelsiz/ui/screens/message/message_data.dart';
@@ -20,54 +19,51 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      iconTheme: Theme.of(context).iconTheme,
-      centerTitle: false,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      leadingWidth: 54,
-      leading: Align(
-        alignment: Alignment.centerRight,
-        child: IconBackground(
-          icon: CupertinoIcons.back,
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      title: _AppBarTitle(
-        messageData: messageData,
-      ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Center(
-            child: IconBorder(
-              icon: CupertinoIcons.video_camera_solid,
-              onTap: () {},
-            ),
+        iconTheme: Theme.of(context).iconTheme,
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leadingWidth: 54,
+        leading: Align(
+          alignment: Alignment.centerRight,
+          child: IconBackground(
+            icon: CupertinoIcons.back,
+            onTap: () {
+              Navigator.of(context).pop();
+            },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(right: 20),
-          child: Center(
-            child: IconBorder(
-              icon: CupertinoIcons.phone_solid,
-              onTap: () {},
+        title: _AppBarTitle(
+          messageData: messageData,
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Center(
+              child: IconBorder(
+                icon: CupertinoIcons.video_camera_solid,
+                onTap: () {},
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-
-      body: Column(
-        children: [
-          Expanded(child: _DemoMessageList()),
-          _ActionBar()
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Center(
+              child: IconBorder(
+                icon: CupertinoIcons.phone_solid,
+                onTap: () {},
+              ),
+            ),
+          ),
         ],
+      ),
+      body: Column(
+        children: [Expanded(child: _DemoMessageList()), _ActionBar()],
       ),
     );
   }
 }
+
 class _DemoMessageList extends StatelessWidget {
   const _DemoMessageList({Key? key}) : super(key: key);
 
@@ -108,7 +104,6 @@ class _DemoMessageList extends StatelessWidget {
   }
 }
 
-
 class _MessageTile extends StatelessWidget {
   const _MessageTile({
     Key? key,
@@ -142,7 +137,7 @@ class _MessageTile extends StatelessWidget {
               ),
               child: Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20),
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20),
                 child: Text(message),
               ),
             ),
@@ -163,7 +158,6 @@ class _MessageTile extends StatelessWidget {
     );
   }
 }
-
 
 class _MessageOwnTile extends StatelessWidget {
   const _MessageOwnTile({
@@ -198,10 +192,10 @@ class _MessageOwnTile extends StatelessWidget {
               ),
               child: Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20),
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20),
                 child: Text(message,
                     style: const TextStyle(
-                      color: AppColors.textLigth,
+                      color: AppColors.textLight,
                     )),
               ),
             ),
@@ -222,7 +216,6 @@ class _MessageOwnTile extends StatelessWidget {
     );
   }
 }
-
 
 class _DateLable extends StatelessWidget {
   const _DateLable({
@@ -258,11 +251,6 @@ class _DateLable extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
 
 class _AppBarTitle extends StatelessWidget {
   const _AppBarTitle({
