@@ -4,7 +4,6 @@ import 'package:engelsiz/ui/screens/message/app.dart';
 import 'package:engelsiz/ui/screens/message/widgets/display_eror_message.dart';
 import 'package:engelsiz/ui/screens/message/widgets/glowing_action_button.dart';
 import 'package:engelsiz/ui/screens/message/widgets/icon_buttons.dart';
-import 'package:engelsiz/ui/screens/message/message_data.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -255,7 +254,7 @@ class _MessageOwnTile extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20),
                 child: Text(message.text ?? '',
                     style: const TextStyle(
-                      color: AppColors.textLigth,
+                      color: AppColors.textLight,
                     )),
               ),
             ),
