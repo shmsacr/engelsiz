@@ -10,7 +10,7 @@ class AppColors {
   static const Color appBarColor = Color(0xffffdbcf);
   static const Color error = Color(0xffb00020);
   static const Color textFaded = Color(0xFF9899A5);
-  static const Color textLigth = Color(0xFFF5F5F5);
+  static const Color textLight = Color(0xFFF5F5F5);
   static const Color accent = Color(0xFFD6755B);
   static const Color cardDark = Color(0xFF303334);
   static const Color cardLight = Color(0xFFF9FAFE);

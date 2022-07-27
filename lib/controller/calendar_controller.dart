@@ -12,35 +12,36 @@ final eventsProvider = Provider<MeetingDataSource>(
 final calendarProvider = Provider<CalendarController>((ref) {
   final calendarController = CalendarController();
   DateTime today = DateTimeExt(DateTime.now())
-      .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+      .copyWith(hour: 8, minute: 0, second: 0, millisecond: 0, microsecond: 0);
   calendarController.selectedDate = today;
   calendarController.displayDate = today;
   calendarController.addPropertyChangedListener(
     (property) {
       if (calendarController.selectedDate == null) return;
-
       DateTime selectedDate = calendarController.selectedDate!;
+      final DateTime now = DateTime.now();
       if (property == "calendarView" &&
           calendarController.view == CalendarView.week) {
-        calendarController.selectedDate =
-            selectedDate = selectedDate.copyWith(hour: 8, minute: 0);
-        calendarController.displayDate =
-            selectedDate.copyWith(hour: 8, minute: 0);
+        calendarController.selectedDate = selectedDate.copyWith(
+            hour: now.minute >= 40 ? now.hour + 1 : now.hour, minute: 0);
+        calendarController.displayDate = selectedDate.copyWith(
+            hour: now.minute >= 40 ? now.hour + 1 : now.hour, minute: 0);
       }
       if (property == "selectedDate") {
         ref
             .read(isSelectedBeforeTodayProvider.notifier)
-            .update((state) => selectedDate.isBefore(today));
+            .update((state) => selectedDate.isBefore(
+                  calendarController.view == CalendarView.week
+                      ? today.copyWith(
+                          hour: now.minute >= 40 ? now.hour + 1 : now.hour)
+                      : today.subtract(const Duration(days: 1)),
+                ));
         if (calendarController.view == CalendarView.week) {
           ref.read(isSelectedInWorkingHours.notifier).update((state) =>
               selectedDate
                   .isAfter(selectedDate.copyWith(hour: 7, minute: 59)) &&
               selectedDate
                   .isBefore(selectedDate.copyWith(hour: 18, minute: 0)));
-          // timeOfDayToDouble(TimeOfDay.fromDateTime(selectedDate)) >
-          //     timeOfDayToDouble(const TimeOfDay(hour: 8, minute: 0)) &&
-          // timeOfDayToDouble(TimeOfDay.fromDateTime(selectedDate)) <
-          //     timeOfDayToDouble(const TimeOfDay(hour: 17, minute: 0)));
         } else {
           ref.read(isSelectedInWorkingHours.notifier).update((state) => true);
         }
