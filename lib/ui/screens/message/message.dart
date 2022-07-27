@@ -116,7 +116,7 @@ class _MessageTitle extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Avatar.large(
-                    url: Helpers.getChannelImage(channel, context.currentUser!)),
+                    url: Helpers.getChannelImage(channel, context.currentUser!)!),
               ),
               Expanded(
                 child: Column(
