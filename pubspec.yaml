@@ -13,6 +13,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  cloud_functions: ^3.3.3
   cupertino_icons: ^1.0.5
   firebase_core: ^1.19.1
   flutter_riverpod: ^1.0.4
