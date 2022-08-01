@@ -1,8 +1,7 @@
-import 'package:engelsiz/ui/screens/dashboard.dart';
 import 'package:engelsiz/controller/auth_controller.dart';
+import 'package:engelsiz/ui/screens/dashboard.dart';
 import 'package:engelsiz/ui/screens/login/users.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter_login/flutter_login.dart';
@@ -19,6 +18,7 @@ class LoginScreen extends ConsumerWidget {
     try {
       await ref.read(firebaseAuthProvider).signInWithEmailAndPassword(
           email: data.name, password: data.password);
+      await getStreamToken(ref);
     } catch (e) {
       return e.toString();
     }
@@ -275,21 +275,5 @@ class LoginScreen extends ConsumerWidget {
 
       // showDebugButtons: true,
     );
-  }
-}
-
-Future<UserCredential> loginAnonymously() async {
-  try {
-    final userCredential = await FirebaseAuth.instance.signInAnonymously();
-    debugPrint("Signed in with temporary account.");
-    return userCredential;
-  } on FirebaseAuthException catch (e) {
-    switch (e.code) {
-      case "operation-not-allowed":
-        return Future.error(
-            "Anonymous auth hasn't been enabled for this project.");
-      default:
-        return Future.error("Unknown error.");
-    }
   }
 }

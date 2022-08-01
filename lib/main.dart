@@ -10,6 +10,22 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
+class Logger extends ProviderObserver {
+  @override
+  void didUpdateProvider(
+    ProviderBase provider,
+    Object? previousValue,
+    Object? newValue,
+    ProviderContainer container,
+  ) {
+    debugPrint('''
+{
+  "provider": "${provider.name ?? provider.runtimeType}",
+  "newValue": "$newValue"
+}''');
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -39,9 +55,28 @@ class MyApp extends ConsumerWidget {
       builder: (context, child) {
         return StreamChatCore(client: client, child: child!);
       },
-      home: ref.watch(userProvider) != null
-          ? const DashboardScreen()
-          : const LoginScreen(),
+      home: const AuthWrapper(),
     );
   }
 }
+
+class AuthWrapper extends ConsumerWidget {
+  const AuthWrapper({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(streamTokenProvider).when(
+        data: (_) => ref.read(tokenProvider) != null
+            ? const DashboardScreen()
+            : const LoginScreen(),
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
+        error: (error, state) =>
+            Scaffold(body: Center(child: Text(error.toString()))));
+  }
+}
+
+// Widget centeredScaffold({required Widget child}) =>
+//     Scaffold(body: Center(child: child));
