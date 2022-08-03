@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:engelsiz/ui/screens/message/app.dart';
 import 'package:engelsiz/ui/screens/message/widgets/display_eror_message.dart';
 import 'package:engelsiz/ui/screens/message/widgets/glowing_action_button.dart';
@@ -9,7 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
-import 'package:collection/collection.dart' show IterableExtension;
+
 import '../screens.dart';
 import 'helpers.dart';
 
@@ -54,60 +55,59 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: Theme.of(context).iconTheme,
-        centerTitle: false,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leadingWidth: 54,
-        leading: Align(
-          alignment: Alignment.centerRight,
-          child: IconBackground(
-            icon: CupertinoIcons.back,
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
-        title: const _AppBarTitle(),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Center(
-              child: IconBorder(
-                icon: CupertinoIcons.video_camera_solid,
-                onTap: () {},
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: Center(
-              child: IconBorder(
-                icon: CupertinoIcons.phone_solid,
-                onTap: () {},
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: MessageListCore(
-              loadingBuilder: (context) {
-                return const Center(child: CircularProgressIndicator());
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          leadingWidth: 54,
+          leading: Align(
+            alignment: Alignment.centerRight,
+            child: IconBackground(
+              icon: CupertinoIcons.back,
+              onTap: () {
+                Navigator.of(context).pop();
               },
-              emptyBuilder: (context) => const SizedBox.shrink(),
-              errorBuilder: (context, error) =>
-                  DisplayErrorMessage(error: error),
-              messageListBuilder: (context, messages) =>
-                  _MessageList(messages: messages),
             ),
           ),
-          const _ActionBar()
-        ],
+          title: const _AppBarTitle(),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Center(
+                child: IconBorder(
+                  icon: CupertinoIcons.video_camera_solid,
+                  onTap: () {},
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: Center(
+                child: IconBorder(
+                  icon: CupertinoIcons.phone_solid,
+                  onTap: () {},
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: MessageListCore(
+                loadingBuilder: (context) {
+                  return const Center(child: CircularProgressIndicator());
+                },
+                emptyBuilder: (context) => const SizedBox.shrink(),
+                errorBuilder: (context, error) =>
+                    DisplayErrorMessage(error: error),
+                messageListBuilder: (context, messages) =>
+                    _MessageList(messages: messages),
+              ),
+            ),
+            const _ActionBar()
+          ],
+        ),
       ),
     );
   }
@@ -284,7 +284,7 @@ class _DateLable extends StatefulWidget {
   final DateTime dateTime;
 
   @override
-  State<_DateLable> createState() => _DateLableState();
+  _DateLableState createState() => _DateLableState();
 }
 
 class _DateLableState extends State<_DateLable> {
@@ -374,32 +374,33 @@ class _AppBarTitle extends StatelessWidget {
               BetterStreamBuilder<List<Member>>(
                 stream: channel.state!.membersStream,
                 initialData: channel.state!.members,
-                builder: (context, data) =>
-                    ConnectionStatusBuilder(statusBuilder: (context, status) {
-                  switch (status) {
-                    case ConnectionStatus.connected:
-                      return _buildConnectedTitleState(context, data);
-                    case ConnectionStatus.connecting:
-                      return const Text(
-                        'Connecting',
-                        style: TextStyle(
-                            fontSize: 10,
+                builder: (context, data) => ConnectionStatusBuilder(
+                  statusBuilder: (context, status) {
+                    switch (status) {
+                      case ConnectionStatus.connected:
+                        return _buildConnectedTitleState(context, data);
+                      case ConnectionStatus.connecting:
+                        return const Text(
+                          'Connecting',
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green),
+                        );
+                      case ConnectionStatus.disconnected:
+                        return const Text(
+                          'Offline',
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.green),
-                      );
-                    case ConnectionStatus.disconnected:
-                      return const Text(
-                        'Offline',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          color: Colors.red,
-                        ),
-                      );
-                    default:
-                      return const SizedBox.shrink();
-                  }
-                },),
+                            fontSize: 10,
+                            color: Colors.red,
+                          ),
+                        );
+                      default:
+                        return const SizedBox.shrink();
+                    }
+                  },
+                ),
               ),
             ],
           ),
@@ -566,21 +567,39 @@ class _ActionBar extends StatefulWidget {
 }
 
 class __ActionBarState extends State<_ActionBar> {
-  final TextEditingController controller = TextEditingController();
+  // final TextEditingController controller = TextEditingController();
+  final StreamMessageInputController controller =
+      StreamMessageInputController();
+  Timer? _debounce;
 
   Future<void> _sendMessage() async {
     if (controller.text.isNotEmpty) {
-      StreamChannel.of(context)
-          .channel
-          .sendMessage(Message(text: controller.text));
+      StreamChannel.of(context).channel.sendMessage(controller.message);
       controller.clear();
       FocusScope.of(context).unfocus();
     }
   }
 
+  void _onTextChange() {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(seconds: 1), () {
+      if (mounted) {
+        StreamChannel.of(context).channel.keyStroke();
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    controller.addListener(_onTextChange);
+  }
+
   @override
   void dispose() {
+    controller.removeListener(_onTextChange);
     controller.dispose();
+
     super.dispose();
   }
 
@@ -611,9 +630,9 @@ class __ActionBarState extends State<_ActionBar> {
             child: Padding(
               padding: const EdgeInsets.only(left: 16.0),
               child: TextField(
-                controller: controller,
+                controller: controller.textEditingController,
                 onChanged: (val) {
-                  StreamChannel.of(context).channel.keyStroke();
+                  controller.text = val;
                 },
                 style: const TextStyle(fontSize: 14),
                 decoration: const InputDecoration(
