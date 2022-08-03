@@ -49,6 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '834693505829',
     projectId: 'engelsiz-22',
     authDomain: 'engelsiz-22.firebaseapp.com',
+    databaseURL: 'https://engelsiz-22-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'engelsiz-22.appspot.com',
   );
 
@@ -57,6 +58,7 @@ class DefaultFirebaseOptions {
     appId: '1:834693505829:android:2101421c673bca1fd430cc',
     messagingSenderId: '834693505829',
     projectId: 'engelsiz-22',
+    databaseURL: 'https://engelsiz-22-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'engelsiz-22.appspot.com',
   );
 
@@ -65,6 +67,7 @@ class DefaultFirebaseOptions {
     appId: '1:834693505829:ios:6fec431723365c23d430cc',
     messagingSenderId: '834693505829',
     projectId: 'engelsiz-22',
+    databaseURL: 'https://engelsiz-22-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'engelsiz-22.appspot.com',
     iosClientId: '834693505829-bvvudhcjb4tuvc83hfq205lf1u1472se.apps.googleusercontent.com',
     iosBundleId: 'com.engelsiz.engelsiz',
@@ -75,6 +78,7 @@ class DefaultFirebaseOptions {
     appId: '1:834693505829:ios:6fec431723365c23d430cc',
     messagingSenderId: '834693505829',
     projectId: 'engelsiz-22',
+    databaseURL: 'https://engelsiz-22-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'engelsiz-22.appspot.com',
     iosClientId: '834693505829-bvvudhcjb4tuvc83hfq205lf1u1472se.apps.googleusercontent.com',
     iosBundleId: 'com.engelsiz.engelsiz',
