@@ -1,15 +1,14 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:engelsiz/controller/dashboard_controller.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens.dart';
 
 class DashboardScreen extends ConsumerWidget {
   static Route get route =>
-      MaterialPageRoute(builder: (context) => DashboardScreen());
-  DashboardScreen({
+      MaterialPageRoute(builder: (context) => const DashboardScreen());
+  const DashboardScreen({
     Key? key,
   }) : super(key: key);
 
