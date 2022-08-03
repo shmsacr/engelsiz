@@ -2,6 +2,7 @@ import 'package:engelsiz/ui/screens/dashboard.dart';
 import 'package:engelsiz/ui/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
+
 import 'app.dart';
 import 'avatar.dart';
 import 'demo_user.dart';
@@ -39,7 +40,7 @@ class _SelectUserScreenState extends State<SelectUserScreen> {
       );
 
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MessageScreen()),
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
       );
     } on Exception catch (e, st) {
       logger.e('Could not connect user', e, st);
