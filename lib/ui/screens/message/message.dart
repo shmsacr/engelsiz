@@ -1,12 +1,11 @@
-
 import 'package:engelsiz/ui/screens/Message/avatar.dart';
 import 'package:engelsiz/ui/screens/message/chat_screen.dart';
 import 'package:engelsiz/ui/screens/message/widgets/display_eror_message.dart';
-import 'package:engelsiz/ui/screens/message/widgets/icon_buttons.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
+
 import 'app.dart';
 import 'helpers.dart';
 import 'widgets/unread_indicator.dart';
@@ -21,69 +20,82 @@ class MessageScreen extends StatefulWidget {
 }
 
 class _MessageScreenState extends State<MessageScreen> {
-  final channelListController = ChannelListController();
+  late final channelListController = StreamChannelListController(
+    client: StreamChatCore.of(context).client,
+    filter: Filter.and(
+      [
+        Filter.equal('type', 'messaging'),
+        Filter.in_(
+          'members',
+          [
+            StreamChatCore.of(context).currentUser!.id,
+          ],
+        ),
+      ],
+    ),
+  );
+
+  @override
+  void initState() {
+    channelListController.doInitialLoad();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    channelListController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filter = Filter.and([
-      Filter.equal('type','messaging'),
-      Filter.in_(
-          'members', [
-        StreamChatCore.of(context).currentUser!.id,
-      ])
-    ],);
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: Theme.of(context).iconTheme,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text('Sohpetler'),
-        leadingWidth: 54,
-        leading: Align(
-          alignment: Alignment.centerRight,
-          child: IconBackground(
-            icon: Icons.search,
-            onTap: () {
-              print('TODO search');
-            },
-          ),
-        ),
-      ),
-      body: ChannelsBloc(
-        child: ChannelListCore(
-          channelListController: channelListController,
-          filter: filter,
-          emptyBuilder: (context) => const Center(
-            child: Text(
-              'So empty',
-              textAlign: TextAlign.center,
-            ),
-          ),
-          errorBuilder: (context, error) => DisplayErrorMessage(error: error),
-          loadingBuilder: (context) => const Center(
+    return PagedValueListenableBuilder<int, Channel>(
+      valueListenable: channelListController,
+      builder: (context, value, child) {
+        return value.when(
+          (channels, nextPageKey, error) {
+            if (channels.isEmpty) {
+              return const Center(
+                child: Text(
+                  'So empty.\nGo and message someone.',
+                  textAlign: TextAlign.center,
+                ),
+              );
+            }
+            return LazyLoadScrollView(
+              onEndOfPage: () async {
+                if (nextPageKey != null) {
+                  channelListController.loadMore(nextPageKey);
+                }
+              },
+              child: CustomScrollView(
+                slivers: [
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return _MessageTitle(
+                          channel: channels[index],
+                        );
+                      },
+                      childCount: channels.length,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          loading: () => const Center(
             child: SizedBox(
               height: 100,
               width: 100,
               child: CircularProgressIndicator(),
             ),
           ),
-          listBuilder: (context, channels) {
-            return CustomScrollView(
-              slivers: [
-                SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return _MessageTitle(
-                      channel: channels[index],
-                    );
-                  },
-                  childCount: channels.length,
-                )),
-              ],
-            );
-          },
-        ),
-      ),
+          error: (e) => DisplayErrorMessage(
+            error: e,
+          ),
+        );
+      },
     );
   }
 }
@@ -96,16 +108,16 @@ class _MessageTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-         Navigator.of(context).push(ChatScreen.routeWithChannel(channel));
+        Navigator.of(context).push(ChatScreen.routeWithChannel(channel));
       },
       child: Container(
         height: 100,
-        //margin: const EdgeInsets.all(8.0),
-        decoration: const BoxDecoration(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
               color: Colors.grey,
-              width: 0.2,
+              width: 0.5,
             ),
           ),
         ),
@@ -115,8 +127,9 @@ class _MessageTitle extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: Avatar.large(
-                    url: Helpers.getChannelImage(channel, context.currentUser!)!),
+                child: Avatar.medium(
+                    url:
+                        Helpers.getChannelImage(channel, context.currentUser!)),
               ),
               Expanded(
                 child: Column(
@@ -128,27 +141,29 @@ class _MessageTitle extends StatelessWidget {
                       child: Text(
                         Helpers.getChannelName(channel, context.currentUser!),
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: const TextStyle(
                           letterSpacing: 0.2,
                           wordSpacing: 1.5,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 20,
-                    ),
-                    _buildLastMessage(),
+                      child: _buildLastMessage(),
+                    )
                   ],
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(right: 20.0),
+                padding: const EdgeInsets.only(right: 20.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const SizedBox(height: 4),
+                    const SizedBox(
+                      height: 4,
+                    ),
                     _buildLastMessageAt(),
                     const SizedBox(
                       height: 8,
@@ -157,10 +172,10 @@ class _MessageTitle extends StatelessWidget {
                       child: UnreadIndicator(
                         channel: channel,
                       ),
-                    ),
+                    )
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -171,27 +186,27 @@ class _MessageTitle extends StatelessWidget {
   Widget _buildLastMessage() {
     return BetterStreamBuilder<int>(
       stream: channel.state!.unreadCountStream,
-      initialData: channel.state?.unreadCount ?? 0 ,
-      builder: (context,count){
-            return BetterStreamBuilder<Message>(
-              stream: channel.state!.lastMessageStream,
-              initialData: channel.state!.lastMessage,
-              builder: (context, lastMessage) {
-                return Text(
-                  lastMessage.text ?? '',
-                  overflow: TextOverflow.ellipsis,
-                  style: (count > 0)
-                      ? const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.secondary,
-                  )
-                      : const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textFaded,
-                  ),
-                );
-              },
+      initialData: channel.state?.unreadCount ?? 0,
+      builder: (context, count) {
+        return BetterStreamBuilder<Message>(
+          stream: channel.state!.lastMessageStream,
+          initialData: channel.state!.lastMessage,
+          builder: (context, lastMessage) {
+            return Text(
+              lastMessage.text ?? '',
+              overflow: TextOverflow.ellipsis,
+              style: (count > 0)
+                  ? const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.secondary,
+                    )
+                  : const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textFaded,
+                    ),
             );
+          },
+        );
       },
     );
   }
