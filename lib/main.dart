@@ -77,6 +77,3 @@ class AuthWrapper extends ConsumerWidget {
             Scaffold(body: Center(child: Text(error.toString()))));
   }
 }
-
-// Widget centeredScaffold({required Widget child}) =>
-//     Scaffold(body: Center(child: child));
