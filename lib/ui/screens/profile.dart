@@ -24,6 +24,7 @@ class ProfileScreen extends ConsumerWidget {
                   ))
               .onError((error, stackTrace) => debugPrint(error.toString()));
           ref.read(tokenProvider.notifier).update((state) => null);
+          await ref.read(clientProvider).disconnectUser();
         },
         child: const Text("Çıkış Yap"),
       ),

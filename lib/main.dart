@@ -2,7 +2,6 @@ import 'package:engelsiz/controller/auth_controller.dart';
 import 'package:engelsiz/firebase_options.dart';
 import 'package:engelsiz/ui/screens/dashboard.dart';
 import 'package:engelsiz/ui/screens/login/login_screen.dart';
-import 'package:engelsiz/ui/screens/message/app.dart';
 import 'package:engelsiz/ui/theme/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -33,8 +32,7 @@ void main() async {
 }
 
 class MyApp extends ConsumerWidget {
-  MyApp({Key? key}) : super(key: key);
-  final client = StreamChatClient(streamKey);
+  const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
@@ -53,7 +51,7 @@ class MyApp extends ConsumerWidget {
       ],
       locale: const Locale('tr', 'TR'),
       builder: (context, child) {
-        return StreamChatCore(client: client, child: child!);
+        return StreamChatCore(client: ref.watch(clientProvider), child: child!);
       },
       home: const AuthWrapper(),
     );

@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:logger/logger.dart' as log;
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
-const streamKey = 'fhfrgu6w443g';
-
 var logger = log.Logger();
 
 /// Extensions can be used to add functionality to the SDK.

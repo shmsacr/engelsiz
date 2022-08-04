@@ -2,10 +2,12 @@ import 'package:engelsiz/controller/auth_controller.dart';
 import 'package:engelsiz/ui/screens/dashboard.dart';
 import 'package:engelsiz/ui/screens/login/users.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter_login/flutter_login.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -16,9 +18,14 @@ class LoginScreen extends ConsumerWidget {
 
   Future<String?> _loginUser(LoginData data, WidgetRef ref) async {
     try {
-      await ref.read(firebaseAuthProvider).signInWithEmailAndPassword(
-          email: data.name, password: data.password);
-      await getStreamToken(ref);
+      final UserCredential userCredential = await ref
+          .read(firebaseAuthProvider)
+          .signInWithEmailAndPassword(
+              email: data.name, password: data.password);
+      final String? token = await getStreamToken(ref);
+      await ref
+          .read(clientProvider)
+          .connectUser(User(id: userCredential.user!.uid), token!);
     } catch (e) {
       return e.toString();
     }
