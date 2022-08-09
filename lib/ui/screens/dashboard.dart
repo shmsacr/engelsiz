@@ -1,6 +1,5 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:engelsiz/controller/dashboard_controller.dart';
-import 'package:engelsiz/ui/screens/profile/profile_screen.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
