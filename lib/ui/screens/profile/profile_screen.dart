@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../controller/auth_controller.dart';
-import '../../theme/app_colors.dart';
 import '../login/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -22,11 +22,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late File _uploadFile;
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseStorage storage = FirebaseStorage.instance;
+  final _firestore = FirebaseFirestore.instance;
   String? picUrl;
+  var fullName = 'loading...';
+  var role = 'loading...';
+  var gender = 'loading...';
+  var phoneNumber = 'loading';
+  var stName = 'loading...';
 
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => getImage());
+    loadUserData();
+    getImage();
+
+    //WidgetsBinding.instance.addPostFrameCallback((_) => getImage());
+  }
+
+  void loadUserData() {
+    _firestore
+        .collection('users')
+        .doc(auth.currentUser?.uid)
+        .get()
+        .then((snapshot) {
+      setState(() {
+        fullName = snapshot.data()!['fullName'];
+        role = snapshot.data()!['role'];
+        gender = snapshot.data()!['gender'];
+        phoneNumber = snapshot.data()!['phoneNumber'];
+      });
+    });
   }
 
   getImage() async {
@@ -110,39 +134,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Positioned(
                         bottom: 20,
                         right: 20,
-                        child: IconButton(
-                            onPressed: () => showDialog(
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    alertDialog()),
-                            icon: const Icon(Icons.add_a_photo)),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.green,
+                          child: IconButton(
+                              onPressed: () => showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      alertDialog()),
+                              icon: const Icon(
+                                Icons.add_a_photo,
+                                color: Colors.white,
+                              )),
+                        ),
                       )
                     ]),
-                    SizedBox(
-                      // decoration: const BoxDecoration(
-                      //   color: Colors.red,
-                      // ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                            'Tarik Örnek',
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontFamily: 'Montserrat',
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              '${fullName}',
+                              style: const TextStyle(
+                                fontSize: 25,
+                                fontFamily: 'Montserrat',
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'Ders Veren',
-                            style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black54,
-                                fontFamily: 'Montserrat'),
-                          )
-                        ],
-                      ),
+                          ],
+                        ),
+                        // Row(
+                        //   children: [
+                        //
+                        //   ],
+                        // ),
+                        Row(
+                          children: [
+                            Text(
+                              '${role}',
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.black54,
+                                  fontFamily: 'Montserrat'),
+                            ),
+                          ],
+                        )
+                      ],
                     ),
                   ],
                 ),
@@ -176,10 +215,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontSize: 20,
                       ),
                     ),
-                    listProfile(Icons.person, "İsim Soyisim", "*****"),
-                    listProfile(Icons.male, "Cinsiyet", "****"),
-                    listProfile(Icons.mail, 'Mail', '****'),
-                    listProfile(Icons.lock, 'Rol', '****'),
+                    listProfile(Icons.person, "İsim Soyisim", "${fullName}"),
+                    listProfile(Icons.male, "Cinsiyet", "${gender}"),
+                    listProfile(
+                        Icons.mail, 'Mail', '${auth.currentUser!.email}'),
+                    listProfile(Icons.lock, 'Rol', '${role}'),
                   ],
                 ),
               ),
@@ -187,7 +227,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Flexible(
               flex: 1,
               child: Container(
-                height: 170,
+                height: 190,
                 width: double.infinity,
                 padding: const EdgeInsets.only(
                   top: 20,
@@ -199,45 +239,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(20)),
                 ),
-                child: Column(
+                child: ListView(
                   children: [
+                    listTileWidget('Şifre', () {}, Icons.key),
+                    listTileWidget(
+                        '${phoneNumber}', () {}, Icons.phone_android),
                     Row(
                       children: [
-                        TextButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.key,
-                            color: Colors.black87,
-                          ),
-                          label: const Text(
-                            'Şifre',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
+                        const _SignOutButton(),
                       ],
-                    ),
-                    Row(
-                      children: [
-                        TextButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.phone_android,
-                            color: Colors.black87,
-                          ),
-                          label: const Text(
-                            '0555 052 20 69',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const _SignOutButton()
+                    )
+
+                    // ListTile(
+                    //   onTap: () {},
+                    //   title: const Text(
+                    //     'Şifre',
+                    //     style: TextStyle(
+                    //       color: Colors.black,
+                    //       fontSize: 18,
+                    //     ),
+                    //   ),
+                    //   leading: Icon(
+                    //     Icons.key,
+                    //     color: Colors.black87,
+                    //   ),
+                    //   trailing: Icon(Icons.arrow_forward_ios),
+                    // ),
+                    // // Row(
+                    // //   children: [
+                    // //     TextButton.icon(
+                    // //       onPressed: () {},
+                    // //       icon: const Icon(
+                    // //         Icons.key,
+                    // //         color: Colors.black87,
+                    // //       ),
+                    // //       label: const Text(
+                    // //         'Şifre',
+                    // //         style: TextStyle(
+                    // //           color: Colors.black,
+                    // //           fontSize: 18,
+                    // //         ),
+                    // //       ),
+                    // //     ),
+                    // //   ],
+                    // // ),
+                    // Row(
+                    //   children: [
+                    //     TextButton.icon(
+                    //       onPressed: () {},
+                    //       icon: const Icon(
+                    //         Icons.phone_android,
+                    //         color: Colors.black87,
+                    //       ),
+                    //       label: Text(
+                    //         '${phoneNumber}',
+                    //         style: const TextStyle(
+                    //           color: Colors.black,
+                    //           fontSize: 18,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    // Row(
+                    //   children: [const _SignOutButton()],
+                    // ),
                   ],
                 ),
               ),
@@ -251,54 +317,74 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget listTileWidget(String text1, Function onTap, IconData icon) {
+    return ListTile(
+      onTap: () {
+        onTap;
+      },
+      title: Text(text1),
+      leading: Icon(icon),
+      trailing: Icon(Icons.arrow_forward_ios),
+    );
+  }
+
   Widget alertDialog() {
-    return AlertDialog(
-      title: const Text('Lütfen yükleme tipini seçiniz'),
-      content: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          InkWell(
-            onTap: () {
-              upLoadCamere();
-            },
-            child: Row(
-              children: const [
-                Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Icon(
-                    Icons.add_a_photo,
-                    color: Colors.black,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 300,
+          width: 400,
+          child: AlertDialog(
+            title: const Text('Lütfen yükleme tipini seçiniz'),
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: () {
+                    upLoadCamere();
+                  },
+                  child: Row(
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Icon(
+                          Icons.add_a_photo,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        'Kamera',
+                        style: TextStyle(color: Colors.purple),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  'Kamera',
-                  style: TextStyle(color: Colors.purple),
-                ),
-              ],
-            ),
-          ),
-          InkWell(
-            onTap: () {
-              upLoadGallery();
-            },
-            child: Row(
-              children: const [
-                Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Icon(
-                    Icons.image,
-                    color: Colors.black,
+                InkWell(
+                  onTap: () {
+                    upLoadGallery();
+                  },
+                  child: Row(
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Icon(
+                          Icons.image,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        'Galeri',
+                        style: TextStyle(color: Colors.purple),
+                      )
+                    ],
                   ),
-                ),
-                Text(
-                  'Galeri',
-                  style: TextStyle(color: Colors.purple),
                 )
               ],
             ),
-          )
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -323,6 +409,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 text1,
                 style: const TextStyle(
                   color: Colors.black87,
+                  fontWeight: FontWeight.w900,
                   fontFamily: "Montserrat",
                   fontSize: 14,
                 ),
@@ -332,8 +419,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: const TextStyle(
                   color: Colors.black87,
                   fontFamily: "Montserrat",
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
                 ),
               ),
             ],
@@ -351,8 +438,12 @@ class _SignOutButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(primary: AppColors.error),
+    return TextButton.icon(
+      icon: const Icon(
+        Icons.exit_to_app,
+        color: Colors.black,
+      ),
+      //style: ElevatedButton.styleFrom(primary: AppColors.textFaded),
       onPressed: () async {
         await _revokeToken();
         ref
@@ -366,7 +457,10 @@ class _SignOutButton extends ConsumerWidget {
         ref.read(tokenProvider.notifier).update((state) => null);
         await ref.read(clientProvider).disconnectUser();
       },
-      child: const Text("Çıkış Yap"),
+      label: const Text(
+        "Çıkış Yap",
+        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+      ),
     );
   }
 }
