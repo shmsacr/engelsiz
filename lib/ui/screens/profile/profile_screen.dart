@@ -174,7 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Text(
                               '${role}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 20,
                                   color: Colors.black54,
                                   fontFamily: 'Montserrat'),
@@ -245,65 +245,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     listTileWidget(
                         '${phoneNumber}', () {}, Icons.phone_android),
                     Row(
-                      children: [
-                        const _SignOutButton(),
+                      children: const [
+                        _SignOutButton(),
                       ],
-                    )
-
-                    // ListTile(
-                    //   onTap: () {},
-                    //   title: const Text(
-                    //     'Şifre',
-                    //     style: TextStyle(
-                    //       color: Colors.black,
-                    //       fontSize: 18,
-                    //     ),
-                    //   ),
-                    //   leading: Icon(
-                    //     Icons.key,
-                    //     color: Colors.black87,
-                    //   ),
-                    //   trailing: Icon(Icons.arrow_forward_ios),
-                    // ),
-                    // // Row(
-                    // //   children: [
-                    // //     TextButton.icon(
-                    // //       onPressed: () {},
-                    // //       icon: const Icon(
-                    // //         Icons.key,
-                    // //         color: Colors.black87,
-                    // //       ),
-                    // //       label: const Text(
-                    // //         'Şifre',
-                    // //         style: TextStyle(
-                    // //           color: Colors.black,
-                    // //           fontSize: 18,
-                    // //         ),
-                    // //       ),
-                    // //     ),
-                    // //   ],
-                    // // ),
-                    // Row(
-                    //   children: [
-                    //     TextButton.icon(
-                    //       onPressed: () {},
-                    //       icon: const Icon(
-                    //         Icons.phone_android,
-                    //         color: Colors.black87,
-                    //       ),
-                    //       label: Text(
-                    //         '${phoneNumber}',
-                    //         style: const TextStyle(
-                    //           color: Colors.black,
-                    //           fontSize: 18,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    // Row(
-                    //   children: [const _SignOutButton()],
-                    // ),
+                    ),
                   ],
                 ),
               ),
