@@ -1,5 +1,6 @@
 export 'calendar/calendar.dart';
 export 'home.dart';
+export 'message/app.dart';
 export 'message/avatar.dart';
 export 'message/chat_screen.dart';
 export 'message/message.dart';
