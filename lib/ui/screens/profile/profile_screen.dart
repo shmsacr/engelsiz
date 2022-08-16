@@ -388,7 +388,6 @@ class _SignOutButton extends ConsumerWidget {
         Icons.exit_to_app,
         color: Colors.black,
       ),
-      //style: ElevatedButton.styleFrom(primary: AppColors.textFaded),
       onPressed: () async {
         await _revokeToken();
         ref
