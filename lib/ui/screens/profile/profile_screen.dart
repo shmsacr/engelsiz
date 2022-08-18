@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:engelsiz/ui/screens/profile/change_user_password.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -241,7 +242,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: ListView(
                   children: [
-                    listTileWidget('Şifre', () {}, Icons.key),
+                    listTileWidget('Şifre', () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ChangePassword()));
+                    }, Icons.key),
                     listTileWidget(
                         '${phoneNumber}', () {}, Icons.phone_android),
                     Row(
@@ -265,7 +271,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget listTileWidget(String text1, Function onTap, IconData icon) {
     return ListTile(
       onTap: () {
-        onTap;
+        onTap();
       },
       title: Text(
         text1,
