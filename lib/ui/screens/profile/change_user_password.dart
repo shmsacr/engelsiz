@@ -111,7 +111,6 @@ class _ChangePasswordState extends State<ChangePassword> {
     );
   }
 
-
   Future<bool> validatePassword(String password) async {
     var firebaseUser = await _auth.currentUser;
 
