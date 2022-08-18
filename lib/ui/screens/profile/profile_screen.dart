@@ -100,8 +100,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: const Color(0xffb7c6d8),
       body: SizedBox(
         width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: ListView(
+          //rossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
             Flexible(
@@ -267,7 +267,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       onTap: () {
         onTap;
       },
-      title: Text(text1),
+      title: Text(
+        text1,
+        style: TextStyle(fontSize: 12),
+      ),
       leading: Icon(icon),
       trailing: Icon(Icons.arrow_forward_ios),
     );
