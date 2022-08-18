@@ -74,7 +74,29 @@ class _ChangePasswordState extends State<ChangePassword> {
                     style: ButtonStyle(
                         backgroundColor:
                             MaterialStateProperty.all(AppColors.textFaded)),
-                    onPressed: () async {},
+                    onPressed: () async {
+                      chechCurrentPasswordValid =
+                          await validatePassword(currentPassController.text);
+
+                      setState(() {
+                        newPassword = newPasswordController.text;
+                      });
+
+                      if (_formKey.currentState!.validate() &&
+                          chechCurrentPasswordValid) {
+                        //changePassword();
+                        currentUser?.updatePassword(newPassword);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: AppColors.primary,
+                            content: Text('Şifreniz Güncellendi..'),
+                          ),
+                        );
+
+                        Navigator.pop(context);
+                      }
+                      //changePassword();
+                    },
                     //changePassword();
 
                     child: const Text(
@@ -87,5 +109,21 @@ class _ChangePasswordState extends State<ChangePassword> {
         ),
       ),
     );
+  }
+
+
+  Future<bool> validatePassword(String password) async {
+    var firebaseUser = await _auth.currentUser;
+
+    var authCredentials = EmailAuthProvider.credential(
+        email: firebaseUser!.email!, password: password);
+    try {
+      var authResult =
+          await firebaseUser.reauthenticateWithCredential(authCredentials);
+      return authResult.user != null;
+    } catch (e) {
+      print(e);
+      return false;
+    }
   }
 }
