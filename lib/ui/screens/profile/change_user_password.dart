@@ -10,7 +10,6 @@ class ChangePassword extends StatefulWidget {
 }
 
 class _ChangePasswordState extends State<ChangePassword> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   bool chechCurrentPasswordValid = true;
   final _formKey = GlobalKey<FormState>();
   var newPassword = '';
@@ -18,6 +17,8 @@ class _ChangePasswordState extends State<ChangePassword> {
   var repeatPasswordController = TextEditingController();
   var currentUser = FirebaseAuth.instance.currentUser;
   var currentPassController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   void dispose() {
     newPasswordController.dispose();
@@ -28,82 +29,118 @@ class _ChangePasswordState extends State<ChangePassword> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Şifre ',
+            style: TextStyle(
+                color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+          ),
+          leading: GestureDetector(
+            child: const Icon(
+              Icons.close,
+              color: Colors.black,
+              size: 50,
+            ),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          // iconTheme: IconThemeData(color: AppColors.accent),
+          // backgroundColor: Colors.red,
+          // automaticallyImplyLeading: true,
+        ),
         body: Container(
           padding: const EdgeInsets.only(left: 20, right: 20),
-          height: 300,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                TextFormField(
-                  controller: currentPassController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                      hintText: 'Eski Şifreniz',
+          height: 400,
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  const Text(
+                    'Şifren en az 6 karakter olmalı ve rakamlar,harfler ve özel karakterlerden (!@%&*) oluşmalıdır',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w100,
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 25),
+                  TextFormField(
+                    controller: currentPassController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                        hintText: 'Eski Şifreniz',
+                        hintStyle: TextStyle(
+                            fontSize: 20, color: AppColors.primaryContainer),
+                        errorText: chechCurrentPasswordValid
+                            ? null
+                            : 'Şifrenizi kontrol ediniz '),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  TextFormField(
+                    controller: newPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      hintText: 'Yeni Şifreniz',
                       hintStyle: TextStyle(
                           fontSize: 20, color: AppColors.primaryContainer),
-                      errorText: chechCurrentPasswordValid
+                    ),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  TextFormField(
+                    obscureText: true,
+                    controller: repeatPasswordController,
+                    validator: (value) {
+                      return newPasswordController.text == value
                           ? null
-                          : 'Şifrenizi kontrol ediniz '),
-                ),
-                TextFormField(
-                  controller: newPasswordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    hintText: 'Yeni Şifreniz',
-                    hintStyle: TextStyle(
-                        fontSize: 20, color: AppColors.primaryContainer),
-                  ),
-                ),
-                TextFormField(
-                  obscureText: true,
-                  controller: repeatPasswordController,
-                  validator: (value) {
-                    return newPasswordController.text == value
-                        ? null
-                        : 'Şifreler uyuşmuyor';
-                  },
-                  decoration: const InputDecoration(
-                    hintText: 'Tekrar giriniz',
-                    hintStyle: TextStyle(
-                        fontSize: 20, color: AppColors.primaryContainer),
-                  ),
-                ),
-                ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(AppColors.textFaded)),
-                    onPressed: () async {
-                      chechCurrentPasswordValid =
-                          await validatePassword(currentPassController.text);
-
-                      setState(() {
-                        newPassword = newPasswordController.text;
-                      });
-
-                      if (_formKey.currentState!.validate() &&
-                          chechCurrentPasswordValid) {
-                        //changePassword();
-                        currentUser?.updatePassword(newPassword);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: AppColors.primary,
-                            content: Text('Şifreniz Güncellendi..'),
-                          ),
-                        );
-
-                        Navigator.pop(context);
-                      }
-                      //changePassword();
+                          : 'Şifreler uyuşmuyor';
                     },
-                    //changePassword();
+                    decoration: const InputDecoration(
+                      hintText: 'Tekrar giriniz',
+                      hintStyle: TextStyle(
+                          fontSize: 20, color: AppColors.primaryContainer),
+                    ),
+                  ),
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(AppColors.textFaded)),
+                      onPressed: () async {
+                        chechCurrentPasswordValid =
+                            await validatePassword(currentPassController.text);
 
-                    child: const Text(
-                      'Şifremi Güncelle',
-                      style: TextStyle(fontSize: 20, color: Colors.white),
-                    ))
-              ],
+                        setState(() {
+                          newPassword = newPasswordController.text;
+                        });
+
+                        if (_formKey.currentState!.validate() &&
+                            chechCurrentPasswordValid) {
+                          //changePassword();
+                          currentUser?.updatePassword(newPassword);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: AppColors.primary,
+                              content: Text('Şifreniz Güncellendi..'),
+                            ),
+                          );
+
+                          Navigator.pop(context);
+                        }
+                        //changePassword();
+                      },
+                      //changePassword();
+
+                      child: const Text(
+                        'Şifremi Güncelle',
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ))
+                ],
+              ),
             ),
           ),
         ),
