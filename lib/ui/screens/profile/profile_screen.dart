@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:engelsiz/ui/screens/profile/change_user_password.dart';
+import 'package:engelsiz/ui/screens/profile/change_user_phone.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -98,7 +99,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffb7c6d8),
       body: SizedBox(
         width: double.infinity,
         child: ListView(
@@ -158,7 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               '${fullName}',
                               style: const TextStyle(
-                                fontSize: 25,
+                                fontSize: 20,
                                 fontFamily: 'Montserrat',
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -192,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               flex: 2,
               child: Container(
                 height: 400,
-                margin: const EdgeInsets.all(20),
+                margin: const EdgeInsets.all(15),
                 padding: const EdgeInsets.only(
                   top: 20,
                   left: 24,
@@ -201,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(
-                    Radius.circular(50),
+                    Radius.circular(20),
                   ),
                 ),
                 child: Column(
@@ -232,7 +232,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.only(
                   top: 20,
-                  left: 24,
+                  left: 5,
                   right: 24,
                 ),
                 margin: const EdgeInsets.all(20),
@@ -248,8 +248,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           MaterialPageRoute(
                               builder: (context) => const ChangePassword()));
                     }, Icons.key),
-                    listTileWidget(
-                        '${phoneNumber}', () {}, Icons.phone_android),
+                    listTileWidget('${phoneNumber}', () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ChangePhone()));
+                    }, Icons.phone_android),
                     Row(
                       children: const [
                         _SignOutButton(),
@@ -275,10 +279,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
       title: Text(
         text1,
-        style: TextStyle(fontSize: 12),
+        style: TextStyle(fontSize: 12, color: Colors.black),
       ),
-      leading: Icon(icon),
-      trailing: Icon(Icons.arrow_forward_ios),
+      leading: Icon(
+        icon,
+        color: Colors.black,
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios,
+        color: Colors.black,
+      ),
     );
   }
 
@@ -352,6 +362,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Icon(
             icon,
             size: 30,
+            color: Colors.black,
           ),
           const SizedBox(
             width: 24,
