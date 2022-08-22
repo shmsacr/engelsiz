@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../controller/auth_controller.dart';
+import '../Message/avatar.dart';
 import '../login/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -32,6 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   var phoneNumber = 'loading';
   var stName = 'loading...';
 
+  @override
   void initState() {
     super.initState();
     loadUserData();
@@ -73,6 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _uploadFile = File(getFile!.path);
     });
     storegeSave();
+    savePicDatabase();
   }
 
   Future<void> upLoadGallery() async {
@@ -81,6 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _uploadFile = File(getFile!.path);
     });
     storegeSave();
+    savePicDatabase();
   }
 
   void storegeSave() async {
@@ -94,6 +98,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       picUrl = url;
     });
+  }
+
+  savePicDatabase() {
+    _firestore
+        .collection('users')
+        .doc(auth.currentUser!.uid)
+        .set({'profilPicture': picUrl}, SetOptions(merge: true));
   }
 
   @override
@@ -124,13 +135,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         margin: const EdgeInsets.all(15),
                         height: 120,
                         width: 120,
-                        child: ClipOval(
-                          child: Image.network(
-                            picUrl ??
-                                'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg',
-                            fit: BoxFit.cover,
-                          ),
+                        child: Avatar.medium(
+                          url: picUrl ??
+                              'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg',
                         ),
+                        // child: ClipOval(
+                        //   child: Image.network(
+                        //     picUrl ??
+                        //         'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg',
+                        //     fit: BoxFit.cover,
+                        //   ),
+                        // ),
                       ),
                       Positioned(
                         bottom: 20,
