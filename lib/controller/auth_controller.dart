@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,9 @@ import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart'
 
 final firebaseAuthProvider =
     Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
+
+final fireStoreProvider =
+    Provider<FirebaseFirestore>((ref) => FirebaseFirestore.instance);
 
 final firebaseFunctionsProvider = Provider<FirebaseFunctions>(
     (ref) => FirebaseFunctions.instanceFor(region: "us-central1"));
@@ -29,7 +33,7 @@ final streamTokenProvider = FutureProvider.autoDispose<void>((ref) async {
   }
 });
 
-const streamKey = 'fhfrgu6w443g';
+const streamKey = 't22mrgu47yyc';
 
 final clientProvider = Provider<stream_chat.StreamChatClient>(
     (ref) => stream_chat.StreamChatClient(streamKey));
