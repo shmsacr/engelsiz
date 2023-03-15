@@ -1,5 +1,4 @@
 import 'package:engelsiz/ui/screens/Message/avatar.dart';
-import 'package:engelsiz/ui/screens/message/chat_screen.dart';
 import 'package:engelsiz/ui/screens/message/widgets/display_eror_message.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +6,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 import 'app.dart';
+import 'contacts_button/contacts_list.dart';
 import 'helpers.dart';
 import 'widgets/unread_indicator.dart';
 
@@ -49,53 +49,66 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PagedValueListenableBuilder<int, Channel>(
-      valueListenable: channelListController,
-      builder: (context, value, child) {
-        return value.when(
-          (channels, nextPageKey, error) {
-            if (channels.isEmpty) {
-              return const Center(
-                child: Text(
-                  'So empty.\nGo and message someone.',
-                  textAlign: TextAlign.center,
-                ),
-              );
-            }
-            return LazyLoadScrollView(
-              onEndOfPage: () async {
-                if (nextPageKey != null) {
-                  channelListController.loadMore(nextPageKey);
-                }
-              },
-              child: CustomScrollView(
-                slivers: [
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return _MessageTitle(
-                          channel: channels[index],
-                        );
-                      },
-                      childCount: channels.length,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-          loading: () => const Center(
-            child: SizedBox(
-              height: 100,
-              width: 100,
-              child: CircularProgressIndicator(),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => Dialog(
+            child: AspectRatio(
+              aspectRatio: 8 / 7,
+              child: ContactsList(),
             ),
           ),
-          error: (e) => DisplayErrorMessage(
-            error: e,
-          ),
         );
-      },
+      }),
+      body: PagedValueListenableBuilder<int, Channel>(
+        valueListenable: channelListController,
+        builder: (context, value, child) {
+          return value.when(
+            (channels, nextPageKey, error) {
+              if (channels.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'So empty.\nGo and message someone.',
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
+              return LazyLoadScrollView(
+                onEndOfPage: () async {
+                  if (nextPageKey != null) {
+                    channelListController.loadMore(nextPageKey);
+                  }
+                },
+                child: CustomScrollView(
+                  slivers: [
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          return _MessageTitle(
+                            channel: channels[index],
+                          );
+                        },
+                        childCount: channels.length,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            loading: () => const Center(
+              child: SizedBox(
+                height: 100,
+                width: 100,
+                child: CircularProgressIndicator(),
+              ),
+            ),
+            error: (e) => DisplayErrorMessage(
+              error: e,
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -108,12 +121,12 @@ class _MessageTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(ChatScreen.routeWithChannel(channel));
+        //Navigator.of(context).push(ChatScreen.routeWithChannel(channel,));
       },
       child: Container(
         height: 100,
         margin: const EdgeInsets.symmetric(horizontal: 8),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
             bottom: BorderSide(
               color: Colors.grey,
