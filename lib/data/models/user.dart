@@ -10,7 +10,8 @@ class User with _$User {
       {required final String fullName,
       required final String email,
       required final String phoneNumber,
-        required final String? profilePicture,
+      required final List<String> classroom,
+      required final String? profilePicture,
       required final String tc,
       required final Gender gender}) = Teacher;
 
@@ -21,8 +22,8 @@ class User with _$User {
       required final String phoneNumber,
       required final String tc,
       required final Gender gender,
-        required final String? profilePicture,
-      required final List<String> teachers,
+      required final String? profilePicture,
+      required final List<String> classroom,
       required final Student student}) = Parent;
 
   factory User.fromJson(Map<String, Object?> json) => _$UserFromJson(json);
