@@ -1,10 +1,11 @@
 import 'package:engelsiz/data/models/user_with_id.dart';
 import 'package:engelsiz/ui/screens/Message/avatar.dart';
-import 'package:engelsiz/ui/screens/message/contacts_button/riverpod_contacts/riverpod_contacts.dart';
 import 'package:engelsiz/ui/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
+
+import '../../../../controller/auth_controller.dart';
 
 class ContactsList extends ConsumerStatefulWidget {
   const ContactsList({Key? key}) : super(key: key);

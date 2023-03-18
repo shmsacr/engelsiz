@@ -1,15 +1,13 @@
-
 import 'package:flutter/material.dart';
 
 @immutable
 class MessageData {
-  const MessageData({
-    required this.senderName,
-    required this.message,
-    required this.messageDate,
-    required this.dateMessage,
-    required this.profilePicture
-  });
+  const MessageData(
+      {required this.senderName,
+      required this.message,
+      required this.messageDate,
+      required this.dateMessage,
+      required this.profilePicture});
 
   final String senderName;
   final String message;
@@ -17,4 +15,3 @@ class MessageData {
   final String dateMessage;
   final String profilePicture;
 }
-

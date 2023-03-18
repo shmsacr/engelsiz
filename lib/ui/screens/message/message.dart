@@ -1,4 +1,5 @@
 import 'package:engelsiz/ui/screens/Message/avatar.dart';
+import 'package:engelsiz/ui/screens/message/contacts_page.dart';
 import 'package:engelsiz/ui/screens/message/widgets/display_eror_message.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,6 @@ import 'package:jiffy/jiffy.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 import 'app.dart';
-import 'contacts_button/contacts_list.dart';
 import 'helpers.dart';
 import 'widgets/unread_indicator.dart';
 
@@ -53,10 +53,10 @@ class _MessageScreenState extends State<MessageScreen> {
       floatingActionButton: FloatingActionButton(onPressed: () {
         showDialog(
           context: context,
-          builder: (BuildContext context) => Dialog(
+          builder: (BuildContext context) => const Dialog(
             child: AspectRatio(
               aspectRatio: 8 / 7,
-              child: ContactsList(),
+              child: ContactsPage(),
             ),
           ),
         );
