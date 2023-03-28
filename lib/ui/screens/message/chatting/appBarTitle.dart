@@ -1,79 +1,90 @@
 import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:engelsiz/ui/screens/message/app.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
+import '../../../../controller/auth_controller.dart';
 import '../../../theme/app_colors.dart';
 import '../avatar.dart';
-import '../helpers.dart';
 import '../widgets/glowing_action_button.dart';
 
-class AppBarTitle extends StatelessWidget {
+class AppBarTitle extends ConsumerWidget {
   const AppBarTitle({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final channel = StreamChannel.of(context).channel;
-    return Row(
-      children: [
-        Avatar.small(
-          url: Helpers.getChannelImage(channel, context.currentUser!),
-        ),
-        const SizedBox(
-          width: 16,
-        ),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                Helpers.getChannelName(channel, context.currentUser!),
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 2),
-              BetterStreamBuilder<List<Member>>(
-                stream: channel.state!.membersStream,
-                initialData: channel.state!.members,
-                builder: (context, data) => ConnectionStatusBuilder(
-                  statusBuilder: (context, status) {
-                    switch (status) {
-                      case ConnectionStatus.connected:
-                        return _buildConnectedTitleState(context, data);
-                      case ConnectionStatus.connecting:
-                        return const Text(
-                          'Connecting',
-                          style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green),
-                        );
-                      case ConnectionStatus.disconnected:
-                        return const Text(
-                          'Offline',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 10,
-                            color: Colors.red,
-                          ),
-                        );
-                      default:
-                        return const SizedBox.shrink();
-                    }
-                  },
+    return FutureBuilder(
+        future: getUserName(channel, context.currentUser!, ref),
+        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasData) {
+            var data = snapshot.data?.data() as Map<String, dynamic>;
+            return Row(
+              children: [
+                Avatar.small(
+                  url: data['profilePicture'] ??
+                      'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg',
                 ),
-              ),
-            ],
-          ),
-        )
-      ],
-    );
+                const SizedBox(
+                  width: 16,
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(data['fullName']),
+                      const SizedBox(height: 2),
+                      BetterStreamBuilder<List<Member>>(
+                        stream: channel.state!.membersStream,
+                        initialData: channel.state!.members,
+                        builder: (context, data) => ConnectionStatusBuilder(
+                          statusBuilder: (context, status) {
+                            switch (status) {
+                              case ConnectionStatus.connected:
+                                return _buildConnectedTitleState(context, data);
+                              case ConnectionStatus.connecting:
+                                return const Text(
+                                  'Connecting',
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green),
+                                );
+                              case ConnectionStatus.disconnected:
+                                return const Text(
+                                  'Offline',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                    color: Colors.red,
+                                  ),
+                                );
+                              default:
+                                return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return CircularProgressIndicator();
+          } else {
+            return CircularProgressIndicator();
+          }
+        });
   }
 
   Widget _buildConnectedTitleState(
@@ -204,7 +215,7 @@ class ConnectionStatusBuilder extends StatelessWidget {
 
   /// The builder that will be used in case of data
   final Widget Function(BuildContext context, ConnectionStatus status)
-  statusBuilder;
+      statusBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +247,7 @@ class ActionBar extends StatefulWidget {
 class _ActionBarState extends State<ActionBar> {
   // final TextEditingController controller = TextEditingController();
   final StreamMessageInputController controller =
-  StreamMessageInputController();
+      StreamMessageInputController();
   Timer? _debounce;
 
   Future<void> _sendMessage() async {
