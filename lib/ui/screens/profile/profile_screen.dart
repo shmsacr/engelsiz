@@ -104,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _firestore
         .collection('users')
         .doc(auth.currentUser!.uid)
-        .set({'profilPicture': picUrl}, SetOptions(merge: true));
+        .set({'profilePicture': picUrl}, SetOptions(merge: true));
   }
 
   @override
@@ -294,13 +294,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
       title: Text(
         text1,
-        style: TextStyle(fontSize: 12, color: Colors.black),
+        style: const TextStyle(fontSize: 12, color: Colors.black),
       ),
       leading: Icon(
         icon,
         color: Colors.black,
       ),
-      trailing: Icon(
+      trailing: const Icon(
         Icons.arrow_forward_ios,
         color: Colors.black,
       ),
