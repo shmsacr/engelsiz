@@ -21,14 +21,20 @@ final firebaseFunctionsProvider = Provider<FirebaseFunctions>(
 final userChangesProvider = StreamProvider<User?>(
     (ref) => ref.watch(firebaseAuthProvider).userChanges());
 
-final userProvider = FutureProvider.autoDispose((ref) async {
+Future<DocumentSnapshot> getUserName(stream_chat.Channel channel,
+    stream_chat.User currentUser, WidgetRef ref) async {
+  final otherMembers = channel.state?.members.where(
+    (element) => element.userId != currentUser.id,
+  );
+
   final snapshot = await ref
       .watch(fireStoreProvider)
       .collection('users')
-      .doc(ref.watch(firebaseAuthProvider).currentUser?.uid)
+      .doc(otherMembers!.first.userId)
       .get();
+
   return snapshot;
-});
+}
 
 final usersProvider = FutureProvider.autoDispose((ref) async {
   FirebaseAuth auth = FirebaseAuth.instance;
