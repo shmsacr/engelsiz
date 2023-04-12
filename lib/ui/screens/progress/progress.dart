@@ -10,6 +10,13 @@ import '../Message/avatar.dart';
 import '../message/contacts_button/contacts_list.dart';
 import '../message/widgets/display_eror_message.dart';
 
+class Progress extends ConsumerStatefulWidget {
+  const Progress({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState createState() => _ProgressState();
+}
+
 class _ProgressState extends ConsumerState<Progress> {
   late final channelListController = StreamChannelListController(
     client: StreamChatCore.of(context).client,
@@ -106,7 +113,6 @@ class _ProgressState extends ConsumerState<Progress> {
         },
       ),
     );
-    ;
   }
 }
 
@@ -184,4 +190,69 @@ class _MessageTitle extends ConsumerWidget {
       ),
     );
   }
+
+  // Widget _buildLastMessage() {
+  //   return BetterStreamBuilder<int>(
+  //     stream: channel.state!.unreadCountStream,
+  //     initialData: channel.state?.unreadCount ?? 0,
+  //     builder: (context, count) {
+  //       return BetterStreamBuilder<Message>(
+  //         stream: channel.state!.lastMessageStream,
+  //         initialData: channel.state!.lastMessage,
+  //         builder: (context, lastMessage) {
+  //           return Text(
+  //             lastMessage.text ?? '',
+  //             overflow: TextOverflow.ellipsis,
+  //             style: (count > 0)
+  //                 ? const TextStyle(
+  //                     fontSize: 12,
+  //                     color: AppColors.secondary,
+  //                   )
+  //                 : const TextStyle(
+  //                     fontSize: 12,
+  //                     color: AppColors.textFaded,
+  //                   ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+  //
+  // Widget _buildLastMessageAt() {
+  //   return BetterStreamBuilder<DateTime>(
+  //     stream: channel.lastMessageAtStream,
+  //     initialData: channel.lastMessageAt,
+  //     builder: (context, data) {
+  //       final lastMessageAt = data.toLocal();
+  //       String stringDate;
+  //       final now = DateTime.now();
+  //
+  //       final startOfDay = DateTime(now.year, now.month, now.day);
+  //
+  //       if (lastMessageAt.millisecondsSinceEpoch >=
+  //           startOfDay.millisecondsSinceEpoch) {
+  //         stringDate = Jiffy(lastMessageAt.toLocal()).jm;
+  //       } else if (lastMessageAt.millisecondsSinceEpoch >=
+  //           startOfDay
+  //               .subtract(const Duration(days: 1))
+  //               .millisecondsSinceEpoch) {
+  //         stringDate = 'YESTERDAY';
+  //       } else if (startOfDay.difference(lastMessageAt).inDays < 7) {
+  //         stringDate = Jiffy(lastMessageAt.toLocal()).EEEE;
+  //       } else {
+  //         stringDate = Jiffy(lastMessageAt.toLocal()).yMd;
+  //       }
+  //       return Text(
+  //         stringDate,
+  //         style: const TextStyle(
+  //           fontSize: 11,
+  //           letterSpacing: -0.2,
+  //           fontWeight: FontWeight.w600,
+  //           color: AppColors.textFaded,
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }
