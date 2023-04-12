@@ -1,25 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:engelsiz/controller/auth_controller.dart';
 import 'package:engelsiz/ui/screens/Message/avatar.dart';
-import 'package:engelsiz/ui/screens/message/contacts_page.dart';
+import 'package:engelsiz/ui/screens/message/contacts_button/contacts_list.dart';
 import 'package:engelsiz/ui/screens/message/widgets/display_eror_message.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 import 'app.dart';
-import 'helpers.dart';
+import 'chatting/chatting.dart';
 import 'widgets/unread_indicator.dart';
 
-class MessageScreen extends StatefulWidget {
+class MessageScreen extends ConsumerStatefulWidget {
   const MessageScreen({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<MessageScreen> createState() => _MessageScreenState();
+  ConsumerState<MessageScreen> createState() => _MessageScreenState();
 }
 
-class _MessageScreenState extends State<MessageScreen> {
+class _MessageScreenState extends ConsumerState<MessageScreen> {
   late final channelListController = StreamChannelListController(
     client: StreamChatCore.of(context).client,
     filter: Filter.and(
@@ -50,21 +53,24 @@ class _MessageScreenState extends State<MessageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => const Dialog(
-            child: AspectRatio(
-              aspectRatio: 8 / 7,
-              child: ContactsPage(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => const Dialog(
+              child: AspectRatio(
+                aspectRatio: 8 / 7,
+                child: ContactsList(),
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+        child: Icon(Icons.add),
+      ),
       body: PagedValueListenableBuilder<int, Channel>(
         valueListenable: channelListController,
-        builder: (context, value, child) {
-          return value.when(
+        builder: (context, currentUser, child) {
+          return currentUser.when(
             (channels, nextPageKey, error) {
               if (channels.isEmpty) {
                 return const Center(
@@ -113,15 +119,15 @@ class _MessageScreenState extends State<MessageScreen> {
   }
 }
 
-class _MessageTitle extends StatelessWidget {
+class _MessageTitle extends ConsumerWidget {
   const _MessageTitle({Key? key, required this.channel}) : super(key: key);
   final Channel channel;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () {
-        //Navigator.of(context).push(ChatScreen.routeWithChannel(channel,));
+        Navigator.of(context).push(ChatScreen.routeWithChannel(channel));
       },
       child: Container(
         height: 100,
@@ -136,60 +142,65 @@ class _MessageTitle extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(4.0),
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Avatar.medium(
-                    url:
-                        Helpers.getChannelImage(channel, context.currentUser!)),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+          child: FutureBuilder(
+            future: getUserName(channel, context.currentUser!, ref),
+            builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+              List<Widget> children;
+              if (snapshot.hasData) {
+                var data = snapshot.data?.data() as Map<String, dynamic>;
+                return Row(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Text(
-                        Helpers.getChannelName(channel, context.currentUser!),
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          letterSpacing: 0.2,
-                          wordSpacing: 1.5,
-                          fontWeight: FontWeight.w900,
-                        ),
+                      padding: const EdgeInsets.all(10.0),
+                      child: Avatar.medium(
+                          url: data['profilePicture'] ??
+                              'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg'),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(data['fullName']),
+                          ),
+                          SizedBox(
+                            height: 20,
+                            child: _buildLastMessage(),
+                          )
+                        ],
                       ),
                     ),
-                    SizedBox(
-                      height: 20,
-                      child: _buildLastMessage(),
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    _buildLastMessageAt(),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Center(
-                      child: UnreadIndicator(
-                        channel: channel,
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          _buildLastMessageAt(),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Center(
+                            child: UnreadIndicator(
+                              channel: channel,
+                            ),
+                          )
+                        ],
                       ),
-                    )
+                    ),
                   ],
-                ),
-              ),
-            ],
+                );
+              } else if (snapshot.hasError) {
+                return CircularProgressIndicator();
+              } else {
+                return CircularProgressIndicator();
+              }
+            },
           ),
         ),
       ),
