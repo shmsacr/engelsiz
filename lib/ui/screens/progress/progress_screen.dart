@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../Message/avatar.dart';
 import '../message/widgets/icon_buttons.dart';
 
 class ProgressScreen extends StatefulWidget {
@@ -26,7 +27,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
               },
             ),
           ),
-          title: Text('AASS'),
+          title: const _AppBarTitle(),
           actions: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -49,6 +50,41 @@ class _ProgressScreenState extends State<ProgressScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AppBarTitle extends StatelessWidget {
+  const _AppBarTitle({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Avatar.small(
+          url:
+              'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg',
+        ),
+        const SizedBox(
+          width: 16,
+        ),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Ahmet Mehmet',
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 2),
+            ],
+          ),
+        )
+      ],
     );
   }
 }
