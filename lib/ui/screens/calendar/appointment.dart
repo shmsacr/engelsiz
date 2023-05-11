@@ -1,11 +1,16 @@
 import 'package:engelsiz/controller/calendar_controller.dart';
 import 'package:engelsiz/data/models/meeting_model.dart';
+import 'package:engelsiz/data/models/user_with_id.dart';
 import 'package:engelsiz/ui/screens/calendar/app_time_picker.dart';
+import 'package:engelsiz/ui/screens/message/avatar.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+
+import '../../../controller/auth_controller.dart';
 
 extension DurationDivision on Duration {
   double operator /(Duration other) => inMicroseconds / other.inMicroseconds;
@@ -164,6 +169,62 @@ class AppointmentView extends ConsumerWidget {
                   ),
                 ),
               ),
+              const SizedBox(
+                height: 10,
+              ),
+              FormBuilderDropdown(
+                name: 'selected',
+                decoration: const InputDecoration(
+                  labelText: 'Öğretmen Seçiniz',
+                  hintText: 'Öğretmen Seçiniz',
+                ),
+                items: ref
+                        .watch(usersProvider)
+                        .value
+                        ?.map((user) => DropdownMenuItem(
+                              alignment: AlignmentDirectional.center,
+                              value: user,
+                              child: ListTile(
+                                leading:
+                                    Avatar.small(url: user.user.profilePicture),
+                                title: Text(user.user.fullName),
+                              ),
+                            ))
+                        .toList() ??
+                    [],
+              )
+              // FormBuilderField<List<String>>(
+              //   name: 'selected',
+              //   builder: (FormFieldState field) {
+              //     return MultiSelectDialogField<String>(
+              //       buttonText: const Text("Öğretmen Seçiniz"),
+              //       buttonIcon: const Icon(Icons.school_outlined),
+              //       searchable: true,
+              //       onConfirm: (values) {
+              //         if (values.length == 1) {
+              //           print("SAAAAAAAAAAAAAAAAA");
+              //         } else {
+              //           field.didChange(values);
+              //         }
+              //       },
+              //       decoration: BoxDecoration(
+              //         borderRadius: BorderRadius.circular(8.0),
+              //         border: Border.all(
+              //           width: 1.0,
+              //           color: AppColors.tertiary,
+              //         ),
+              //       ),
+              //       title: const Text("Öğretmen Seçiniz"),
+              //       items: ref
+              //               .watch(usersProvider)
+              //               .value
+              //               ?.map((user) => MultiSelectItem<String>(
+              //                   user.id, user.user.fullName))
+              //               .toList() ??
+              //           [],
+              //     );
+              //   },
+              // ),
             ],
           ),
           if (meeting != null)
@@ -249,3 +310,18 @@ Widget customDivider() => Column(
         SizedBox(height: 8.0),
       ],
     );
+
+class SelectedTeacher extends StatefulWidget {
+  const SelectedTeacher({Key? key, required this.user}) : super(key: key);
+  final UserWithId user;
+
+  @override
+  State<SelectedTeacher> createState() => _SelectedTeacherState();
+}
+
+class _SelectedTeacherState extends State<SelectedTeacher> {
+  @override
+  Widget build(BuildContext context) {
+    return FormBuilderDropdown(name: "selected", items: const []);
+  }
+}
