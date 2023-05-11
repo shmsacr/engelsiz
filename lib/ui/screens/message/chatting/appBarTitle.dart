@@ -27,57 +27,61 @@ class AppBarTitle extends ConsumerWidget {
         builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.hasData) {
             var data = snapshot.data?.data() as Map<String, dynamic>;
-            return Row(
-              children: [
-                Avatar.small(
-                  url: data['profilePicture'] ??
-                      'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg',
-                ),
-                const SizedBox(
-                  width: 16,
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(data['fullName']),
-                      const SizedBox(height: 2),
-                      BetterStreamBuilder<List<Member>>(
-                        stream: channel.state!.membersStream,
-                        initialData: channel.state!.members,
-                        builder: (context, data) => ConnectionStatusBuilder(
-                          statusBuilder: (context, status) {
-                            switch (status) {
-                              case ConnectionStatus.connected:
-                                return _buildConnectedTitleState(context, data);
-                              case ConnectionStatus.connecting:
-                                return const Text(
-                                  'Connecting',
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.green),
-                                );
-                              case ConnectionStatus.disconnected:
-                                return const Text(
-                                  'Offline',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                    color: Colors.red,
-                                  ),
-                                );
-                              default:
-                                return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-                      ),
-                    ],
+            return TextButton(
+              onPressed: () {},
+              child: Row(
+                children: [
+                  Avatar.small(
+                    url: data['profilePicture'] ??
+                        'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg',
                   ),
-                )
-              ],
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(data['fullName']),
+                        const SizedBox(height: 2),
+                        BetterStreamBuilder<List<Member>>(
+                          stream: channel.state!.membersStream,
+                          initialData: channel.state!.members,
+                          builder: (context, data) => ConnectionStatusBuilder(
+                            statusBuilder: (context, status) {
+                              switch (status) {
+                                case ConnectionStatus.connected:
+                                  return _buildConnectedTitleState(
+                                      context, data);
+                                case ConnectionStatus.connecting:
+                                  return const Text(
+                                    'Connecting',
+                                    style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green),
+                                  );
+                                case ConnectionStatus.disconnected:
+                                  return const Text(
+                                    'Offline',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                      color: Colors.red,
+                                    ),
+                                  );
+                                default:
+                                  return const SizedBox.shrink();
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             );
           } else if (snapshot.hasError) {
             return CircularProgressIndicator();
