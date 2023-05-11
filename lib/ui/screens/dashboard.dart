@@ -3,11 +3,12 @@ import 'package:engelsiz/controller/dashboard_controller.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'screens.dart';
 
 class DashboardScreen extends ConsumerWidget {
   static Route get route =>
-      MaterialPageRoute(builder: (context) => const DashboardScreen());
+      MaterialPageRoute(builder: (context) => DashboardScreen());
   const DashboardScreen({
     Key? key,
   }) : super(key: key);
@@ -18,7 +19,7 @@ class DashboardScreen extends ConsumerWidget {
   final List<Widget> _screens = const <Widget>[
     HomeScreen(),
     CalendarScreen(),
-    ProgressScreen(),
+    Progress(),
     MessageScreen(),
     ProfileScreen(),
   ];
@@ -31,6 +32,25 @@ class DashboardScreen extends ConsumerWidget {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // todo: baglantı sayfası
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          //   child: GlowingActionButton(
+          //     color: AppColors.secondary,
+          //     icon: Icons.add,
+          //     onPressed: () {
+          //       showDialog(
+          //         context: context,
+          //         builder: (BuildContext context) => Dialog(
+          //           child: AspectRatio(
+          //             aspectRatio: 8 / 7,
+          //             child: ContactsPage(),
+          //           ),
+          //         ),
+          //       );
+          //     },
+          //   ),
+          // ),
           CurvedNavigationBar(
             height: 44,
             items: const [
