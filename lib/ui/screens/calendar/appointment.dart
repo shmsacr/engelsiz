@@ -1,6 +1,5 @@
 import 'package:engelsiz/controller/calendar_controller.dart';
 import 'package:engelsiz/data/models/meeting_model.dart';
-import 'package:engelsiz/data/models/user_with_id.dart';
 import 'package:engelsiz/ui/screens/calendar/app_time_picker.dart';
 import 'package:engelsiz/ui/screens/message/avatar.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
@@ -10,7 +9,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+import '../../../controller/appointment_controller.dart';
 import '../../../controller/auth_controller.dart';
+import '../../../data/models/appointment_model.dart';
 
 extension DurationDivision on Duration {
   double operator /(Duration other) => inMicroseconds / other.inMicroseconds;
@@ -29,6 +30,8 @@ class AppointmentView extends ConsumerWidget {
     final meetingController = ref.watch(meetingProvider(meeting));
     final meetingNotifier = ref.watch(meetingProvider(meeting).notifier);
     final eventsController = ref.watch(eventsProvider);
+    final currentUserId = ref.watch(firebaseAuthProvider).currentUser?.uid;
+    late String teacherId;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -39,7 +42,7 @@ class AppointmentView extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed: () {
+            onPressed: () async {
               if (meeting != null) {
                 eventsController.appointments!.remove(meeting);
                 eventsController.notifyListeners(
@@ -49,6 +52,30 @@ class AppointmentView extends ConsumerWidget {
               // SchedulerBinding.instance.addPostFrameCallback((_) {
               eventsController.notifyListeners(
                   CalendarDataSourceAction.add, <Meeting>[meetingController]);
+
+              final MyAppointment appointment = MyAppointment.fromJson({
+                "situation": "beklemede",
+                "notes": meetingNotifier.notesTextController.text,
+                "title": meetingNotifier.subjectTextController.text,
+                "parentId": currentUserId,
+                "title": meetingNotifier.subjectTextController.text,
+                "start": meetingController.start.toString(),
+                "end": meetingController.end.toString(),
+                "teacherId": teacherId
+              });
+              try {
+                await createAppointment(ref: ref, appointment: appointment);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Randevu isteği yollandı")),
+                  );
+                }
+              } catch (e) {
+                debugPrint(e.toString());
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text("$e")));
+              }
+
               // });
 
               // debugPrint(meetingController.toString());
@@ -184,6 +211,9 @@ class AppointmentView extends ConsumerWidget {
                         ?.map((user) => DropdownMenuItem(
                               alignment: AlignmentDirectional.center,
                               value: user,
+                              onTap: () {
+                                teacherId = user.id;
+                              },
                               child: ListTile(
                                 leading:
                                     Avatar.small(url: user.user.profilePicture),
@@ -310,18 +340,3 @@ Widget customDivider() => Column(
         SizedBox(height: 8.0),
       ],
     );
-
-class SelectedTeacher extends StatefulWidget {
-  const SelectedTeacher({Key? key, required this.user}) : super(key: key);
-  final UserWithId user;
-
-  @override
-  State<SelectedTeacher> createState() => _SelectedTeacherState();
-}
-
-class _SelectedTeacherState extends State<SelectedTeacher> {
-  @override
-  Widget build(BuildContext context) {
-    return FormBuilderDropdown(name: "selected", items: const []);
-  }
-}
