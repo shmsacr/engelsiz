@@ -11,6 +11,7 @@ class User with _$User {
       required final String email,
       required final String phoneNumber,
       required final List<String> classroom,
+      required final List<String> waitAppo,
       required final String? profilePicture,
       required final String tc,
       required final Gender gender}) = Teacher;
@@ -22,6 +23,7 @@ class User with _$User {
       required final String phoneNumber,
       required final String tc,
       required final Gender gender,
+      required final List<String> waitAppo,
       required final String? profilePicture,
       required final List<String> classroom,
       required final Student student}) = Parent;
