@@ -124,8 +124,12 @@ class _MessageTitle extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const ProgressScreen()));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ProgressScreen(
+                      channel: channel,
+                    )));
       },
       child: Container(
         height: 100,
