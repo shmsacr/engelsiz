@@ -36,13 +36,25 @@ Future<DocumentSnapshot> getUserName(stream_chat.Channel channel,
   return snapshot;
 }
 
+Future<bool> isMyTeacher(WidgetRef ref) async {
+  FirebaseAuth auth = ref.watch(firebaseAuthProvider);
+  final snapShot = await ref
+      .watch(fireStoreProvider)
+      .collection("users")
+      .doc(auth.currentUser?.uid)
+      .collection("role")
+      .get();
+  // ignore: unrelated_type_equality_checks
+  if (snapShot == "teacher") return true;
+  return false;
+}
+
 final usersProvider = FutureProvider.autoDispose((ref) async {
   FirebaseAuth auth = FirebaseAuth.instance;
   final snapShot = await FirebaseFirestore.instance
       .collection("users")
       .doc(auth.currentUser?.uid)
       .get();
-  final userId = snapShot.id;
   final classroomId = await snapShot.data()!["classroom"];
   final role = await snapShot.data()!['role'];
   var snap_shot;
