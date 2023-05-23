@@ -1,8 +1,11 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:engelsiz/ui/screens/message/app.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:open_file/open_file.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 import '../../../controller/auth_controller.dart';
@@ -49,60 +52,54 @@ class ProgressScreen extends ConsumerWidget {
             ),
           ],
         ),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) => Dialog(
+                      child: AspectRatio(
+                          aspectRatio: 7 / 6,
+                          child: Padding(
+                            padding: EdgeInsets.all(13.0),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  "Dosya Türünü Seçiniz",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 22),
+                                  textAlign: TextAlign.left,
+                                ),
+                                const ListTile(
+                                  leading: Icon(Icons.camera_alt),
+                                  title: Text("Kamera ile gönder"),
+                                ),
+                                const ListTile(
+                                  leading: Icon(Icons.photo_library_rounded),
+                                  title: Text("Galeriyi aç"),
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.file_copy_sharp),
+                                  title: const Text("Belge gönder"),
+                                  onTap: () async {
+                                    final result = await FilePicker.platform.pickFiles();
+
+
+                                  },
+                                )
+                              ],
+                            ),
+                          ))));
+            },
+            child: const Icon(Icons.file_copy_sharp)),
       ),
     );
-    ;
+  }
+
+  openFile(PlatformFile file){
+    OpenFile.open(file.path!);
   }
 }
-// class ProgressScreen extends StatefulWidget {
-//   const ProgressScreen({Key? key,required this.channel}) : super(key: key);
-//   final Channel channel;
-//   @override
-//   State<ProgressScreen> createState() => _ProgressScreenState();
-// }
-
-// class _ProgressScreenState extends State<ProgressScreen> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return SafeArea(
-//       child: Scaffold(
-//         appBar: AppBar(
-//           leadingWidth: 54,
-//           leading: Align(
-//             alignment: Alignment.centerRight,
-//             child: IconBackground(
-//               icon: CupertinoIcons.back,
-//               onTap: () {
-//                 Navigator.of(context).pop();
-//               },
-//             ),
-//           ),
-//           title: const _AppBarTitle(channel: ,),
-//           actions: [
-//             Padding(
-//               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-//               child: Center(
-//                 child: IconBorder(
-//                   icon: CupertinoIcons.video_camera_solid,
-//                   onTap: () {},
-//                 ),
-//               ),
-//             ),
-//             Padding(
-//               padding: const EdgeInsets.only(right: 20),
-//               child: Center(
-//                 child: IconBorder(
-//                   icon: CupertinoIcons.phone_solid,
-//                   onTap: () {},
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class _AppBarTitle extends ConsumerWidget {
   const _AppBarTitle({Key? key, required this.channel}) : super(key: key);
@@ -139,11 +136,10 @@ class _AppBarTitle extends ConsumerWidget {
               ),
             );
           } else if (snapshot.hasError) {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           } else {
             return CircularProgressIndicator();
           }
         });
-    ;
   }
 }
