@@ -42,11 +42,13 @@ Future<bool> isMyTeacher(WidgetRef ref) async {
       .watch(fireStoreProvider)
       .collection("users")
       .doc(auth.currentUser?.uid)
-      .collection("role")
       .get();
   // ignore: unrelated_type_equality_checks
-  if (snapShot == "teacher") return true;
-  return false;
+  if (snapShot.data()!['role'] == "teacher") {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 final usersProvider = FutureProvider.autoDispose((ref) async {
