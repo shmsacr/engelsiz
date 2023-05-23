@@ -1,7 +1,6 @@
 import 'package:engelsiz/controller/calendar_controller.dart';
 import 'package:engelsiz/data/models/meeting_model.dart';
 import 'package:engelsiz/ui/screens/calendar/app_time_picker.dart';
-import 'package:engelsiz/ui/screens/message/avatar.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -12,6 +11,7 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../../../controller/appointment_controller.dart';
 import '../../../controller/auth_controller.dart';
 import '../../../data/models/appointment_model.dart';
+import '../Message/avatar.dart';
 
 extension DurationDivision on Duration {
   double operator /(Duration other) => inMicroseconds / other.inMicroseconds;
@@ -54,7 +54,6 @@ class AppointmentView extends ConsumerWidget {
                   CalendarDataSourceAction.add, <Meeting>[meetingController]);
 
               final MyAppointment appointment = MyAppointment.fromJson({
-                "situation": "beklemede",
                 "notes": meetingNotifier.notesTextController.text,
                 "title": meetingNotifier.subjectTextController.text,
                 "parentId": currentUserId,
