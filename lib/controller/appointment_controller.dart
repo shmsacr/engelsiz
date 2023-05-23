@@ -47,7 +47,7 @@ final appointmentProvider = FutureProvider<dynamic>((ref) async {
   return snapShot.data()!["waitAppo"];
 });
 
-final getAppointmentsProvider = FutureProvider((ref) async {
+final getAppointmentsProvider = FutureProvider.autoDispose((ref) async {
   final data = await ref
       .watch(fireStoreProvider)
       .collection("appointments")
@@ -59,22 +59,10 @@ final getAppointmentsProvider = FutureProvider((ref) async {
         id: doc.id, appointment: app.MyAppointment.fromJson(doc.data()));
   }).toList();
 });
-// final appointmentProvider = FutureProvider.autoDispose((ref) async {
-//   FirebaseAuth auth = FirebaseAuth.instance;
-//   final snapShot = await ref
-//       .read(fireStoreProvider)
-//       .collection("users")
-//       .doc(auth.currentUser?.uid)
-//       .get();
-//   final appointmentId = await snapShot.data()!["waitAppo"];
-//   final data = await ref
-//       .watch(fireStoreProvider)
-//       .collection("appointments")
-//       .where(FieldPath.documentId, whereIn: appointmentId)
-//       .get();
-//
-//   return data.docs.map((doc) {
-//     return AppointmentWithId(
-//         id: doc.id, appointment: app.MyAppointment.fromJson(doc.data()));
-//   }).toList();
-// });
+
+final contactUserAppo = FutureProvider.autoDispose
+    .family<DocumentSnapshot, String>((ref, userId) async {
+  final snapShot =
+      await FirebaseFirestore.instance.collection("users").doc(userId).get();
+  return snapShot;
+});
