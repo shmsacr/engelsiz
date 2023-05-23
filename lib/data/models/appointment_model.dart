@@ -7,7 +7,7 @@ part 'appointment_model.g.dart';
 class MyAppointment with _$MyAppointment {
   @JsonSerializable(explicitToJson: true)
   const factory MyAppointment(
-      {required final String situation,
+      {@Default(false) bool situation,
       required final String notes,
       required final String parentId,
       required final String teacherId,
