@@ -1,16 +1,22 @@
 
+
+
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:engelsiz/ui/screens/message/app.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_file/open_file.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
-
 import '../../../controller/auth_controller.dart';
+import '../../../controller/progress_controller.dart';
 import '../Message/avatar.dart';
 import '../message/widgets/icon_buttons.dart';
+import 'filePreview.dart';
 
 class ProgressScreen extends ConsumerWidget {
   const ProgressScreen({Key? key, required this.channel}) : super(key: key);
@@ -60,7 +66,7 @@ class ProgressScreen extends ConsumerWidget {
                       child: AspectRatio(
                           aspectRatio: 7 / 6,
                           child: Padding(
-                            padding: EdgeInsets.all(13.0),
+                            padding: const EdgeInsets.all(13.0),
                             child: Column(
                               children: [
                                 const Text(
@@ -82,9 +88,15 @@ class ProgressScreen extends ConsumerWidget {
                                   leading: const Icon(Icons.file_copy_sharp),
                                   title: const Text("Belge gönder"),
                                   onTap: () async {
-                                    final result = await FilePicker.platform.pickFiles();
-
-
+                                    FilePickerResult? result = await FilePicker.platform.pickFiles();
+                                    PlatformFile file = result!.files.first;
+                                    // ignore: use_build_context_synchronously
+                                    Navigator.push(
+                                      context,
+                                    MaterialPageRoute(
+                                        builder: (context) => FilePreviewPage(file: file, channel: channel,),
+                                      ),
+                                    );
                                   },
                                 )
                               ],
@@ -138,7 +150,7 @@ class _AppBarTitle extends ConsumerWidget {
           } else if (snapshot.hasError) {
             return const CircularProgressIndicator();
           } else {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           }
         });
   }
