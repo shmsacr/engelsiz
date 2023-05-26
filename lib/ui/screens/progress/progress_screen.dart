@@ -16,7 +16,6 @@ import '../../../controller/auth_controller.dart';
 import '../../../controller/progress_controller.dart';
 import '../Message/avatar.dart';
 import '../message/widgets/icon_buttons.dart';
-import 'filePreview.dart';
 
 class ProgressScreen extends ConsumerWidget {
   const ProgressScreen({Key? key, required this.channel}) : super(key: key);
@@ -88,17 +87,9 @@ class ProgressScreen extends ConsumerWidget {
                                   leading: const Icon(Icons.file_copy_sharp),
                                   title: const Text("Belge gönder"),
                                   onTap: () async {
-                                    FilePickerResult? result = await FilePicker.platform.pickFiles();
-                                    PlatformFile file = result!.files.first;
-                                    // ignore: use_build_context_synchronously
-                                    Navigator.push(
-                                      context,
-                                    MaterialPageRoute(
-                                        builder: (context) => FilePreviewPage(file: file, channel: channel,),
-                                      ),
-                                    );
+                                    uploadPDF(channel, context.currentUser!, ref);
                                   },
-                                )
+                                ),
                               ],
                             ),
                           ))));
@@ -112,7 +103,6 @@ class ProgressScreen extends ConsumerWidget {
     OpenFile.open(file.path!);
   }
 }
-
 class _AppBarTitle extends ConsumerWidget {
   const _AppBarTitle({Key? key, required this.channel}) : super(key: key);
   final Channel channel;
