@@ -47,17 +47,19 @@ final appointmentProvider = FutureProvider<dynamic>((ref) async {
   return snapShot.data()!["waitAppo"];
 });
 
-final getAppointmentsProvider = FutureProvider.autoDispose((ref) async {
-  final data = await ref
+final getAppointmentsProvider =
+    StreamProvider.autoDispose<List<AppointmentWithId>>((ref) {
+  return ref
       .watch(fireStoreProvider)
       .collection("appointments")
       .where(FieldPath.documentId,
           whereIn: ref.watch(appointmentProvider).value)
-      .get();
-  return data.docs.map((doc) {
-    return AppointmentWithId(
-        id: doc.id, appointment: app.MyAppointment.fromJson(doc.data()));
-  }).toList();
+      .snapshots()
+      .map((querySnapshot) => querySnapshot.docs.map((doc) {
+            return AppointmentWithId(
+                id: doc.id,
+                appointment: app.MyAppointment.fromJson(doc.data()));
+          }).toList());
 });
 
 final contactUserAppo = FutureProvider.autoDispose
@@ -66,3 +68,33 @@ final contactUserAppo = FutureProvider.autoDispose
       await FirebaseFirestore.instance.collection("users").doc(userId).get();
   return snapShot;
 });
+
+updateAppointment(String appoId, WidgetRef ref) async {
+  await ref
+      .watch(fireStoreProvider)
+      .collection("appointments")
+      .doc(appoId)
+      .update({"situation": true});
+}
+
+deleteAppointment(AppointmentWithId appoId, WidgetRef ref) async {
+  await ref
+      .watch(fireStoreProvider)
+      .collection("appointments")
+      .doc(appoId.id)
+      .delete();
+  await ref
+      .watch(fireStoreProvider)
+      .collection("users")
+      .doc(appoId.appointment.teacherId)
+      .update({
+    "waitAppo": FieldValue.arrayRemove([appoId.id])
+  });
+  await ref
+      .watch(fireStoreProvider)
+      .collection("users")
+      .doc(appoId.appointment.parentId)
+      .update({
+    "waitAppo": FieldValue.arrayRemove([appoId.id])
+  });
+}
