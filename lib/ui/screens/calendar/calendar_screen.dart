@@ -31,7 +31,7 @@ class CalendarScreen extends ConsumerWidget {
               ? getAppointments.when(
                   data: (data) => Scaffold(
                         appBar: AppBar(
-                          title: Center(child: const Text("Randevular")),
+                          title: const Center(child: Text("Randevular")),
                         ),
                         body: ListView.builder(
                           itemCount: data.length,
@@ -74,7 +74,8 @@ class CalendarScreen extends ConsumerWidget {
                                       ],
                                     ),
                                   ));
-                            }
+                            } else
+                              return SizedBox();
                           },
                         ),
                       ),
