@@ -1,5 +1,6 @@
 import 'package:engelsiz/controller/calendar_controller.dart';
 import 'package:engelsiz/data/models/meeting_model.dart';
+import 'package:engelsiz/data/models/user_with_id.dart';
 import 'package:engelsiz/ui/screens/calendar/app_time_picker.dart';
 import 'package:engelsiz/ui/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class AppointmentView extends ConsumerWidget {
     final meetingNotifier = ref.watch(meetingProvider(meeting).notifier);
     final eventsController = ref.watch(eventsProvider);
     final currentUserId = ref.watch(firebaseAuthProvider).currentUser?.uid;
-    late String teacherId;
+    String? teacherId;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -198,7 +199,7 @@ class AppointmentView extends ConsumerWidget {
               const SizedBox(
                 height: 10,
               ),
-              FormBuilderDropdown(
+              FormBuilderDropdown<UserWithId>(
                 name: 'selected',
                 decoration: const InputDecoration(
                   labelText: 'Öğretmen Seçiniz',
@@ -221,6 +222,11 @@ class AppointmentView extends ConsumerWidget {
                             ))
                         .toList() ??
                     [],
+                onChanged: (value) {
+                  if (value != null) {
+                    teacherId = value.id;
+                  }
+                },
               )
               // FormBuilderField<List<String>>(
               //   name: 'selected',

@@ -79,62 +79,73 @@ class AcceptAppointment extends ConsumerWidget {
                                   ],
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Text(
-                                          "${DateFormat("yyyy-MM-dd").format(appointmentWithId.appointment.start)}",
-                                          style: const TextStyle(
-                                            color: Colors.black87,
-                                            fontFamily: "Montserrat",
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                              Row(
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "${DateFormat("yyyy-MM-dd").format(appointmentWithId.appointment.start)}",
+                                        style: const TextStyle(
+                                          color: Colors.black87,
+                                          fontFamily: "Montserrat",
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                        Text(
-                                          "${DateFormat("Hm").format(appointmentWithId.appointment.start)} - ${DateFormat("Hm").format(appointmentWithId.appointment.end)}",
-                                          style: const TextStyle(
-                                            color: Colors.black87,
-                                            fontFamily: "Montserrat",
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                      ),
+                                      Text(
+                                        "${DateFormat("Hm").format(appointmentWithId.appointment.start)} - ${DateFormat("Hm").format(appointmentWithId.appointment.end)}",
+                                        style: const TextStyle(
+                                          color: Colors.black87,
+                                          fontFamily: "Montserrat",
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.06),
+                                      ),
+                                    ],
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
                                       child: Column(
                                         children: [
                                           Text(
                                             appointmentWithId.appointment.title,
                                             style: const TextStyle(
-                                              color: Colors.black87,
-                                              fontFamily: "Montserrat",
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 5,
-                                          ),
-                                          Text(
-                                            appointmentWithId.appointment.notes,
-                                            style: const TextStyle(
                                                 color: Colors.black87,
                                                 fontFamily: "Montserrat",
                                                 fontWeight: FontWeight.w500,
                                                 fontSize: 15),
-                                          )
+                                            softWrap: false,
+                                            maxLines: 9,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          // Expanded(
+                                          //   child: Text(
+                                          //     appointmentWithId.appointment.title,
+                                          //     style: const TextStyle(
+                                          //       color: Colors.black87,
+                                          //       fontFamily: "Montserrat",
+                                          //       fontWeight: FontWeight.w500,
+                                          //     ),
+                                          //     softWrap: false,
+                                          //     maxLines: 1,
+                                          //     overflow: TextOverflow.ellipsis,
+                                          //   ),
+                                          // ),
+                                          Text(
+                                            appointmentWithId.appointment.notes,
+                                            style: const TextStyle(
+                                                color: Colors.black,
+                                                fontFamily: "Montserrat",
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 15),
+                                            softWrap: false,
+                                            maxLines: 9,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ],
                                       ),
-                                    )
-                                  ],
-                                ),
+                                    ),
+                                  ),
+                                ],
                               )
                             ],
                           ),
@@ -164,7 +175,7 @@ class AcceptAppointment extends ConsumerWidget {
                                                 DashboardScreen()));
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                          content: Text("Randevu reddeildi")),
+                                          content: Text("Randevu reddedildi")),
                                     );
                                   }
                                 } catch (e) {
