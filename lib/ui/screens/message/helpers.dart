@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 abstract class Helpers {
@@ -9,14 +10,16 @@ abstract class Helpers {
     final randomInt = random.nextInt(1000);
     return 'https://picsum.photos/seed/$randomInt/300/300';
   }
-  static String getChannelName(Channel channel, User currentUser) {
+
+  static String getChannelName(
+      Channel channel, User currentUser, WidgetRef ref) {
     if (channel.name != null) {
       return channel.name!;
     } else if (channel.state?.members.isNotEmpty ?? false) {
       final otherMembers = channel.state?.members
           .where(
             (element) => element.userId != currentUser.id,
-      )
+          )
           .toList();
 
       if (otherMembers?.length == 1) {
@@ -28,6 +31,7 @@ abstract class Helpers {
       return 'No Channel Name';
     }
   }
+
   static String? getChannelImage(Channel channel, User currentUser) {
     if (channel.image != null) {
       return channel.image!;
@@ -35,7 +39,7 @@ abstract class Helpers {
       final otherMembers = channel.state?.members
           .where(
             (element) => element.userId != currentUser.id,
-      )
+          )
           .toList();
 
       if (otherMembers?.length == 1) {
@@ -46,17 +50,12 @@ abstract class Helpers {
     }
   }
 
-
   static DateTime randomDate() {
     final random = Random();
     final currentDate = DateTime.now();
     return currentDate.subtract(Duration(seconds: random.nextInt(200000)));
   }
-
-
 }
-
-
 
 // String getChannelName(Channel channel, User currentUser) {
 //   if (channel.name != null) {
@@ -77,5 +76,3 @@ abstract class Helpers {
 //     return 'No Channel Name';
 //   }
 // }
-
-
