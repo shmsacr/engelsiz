@@ -1,12 +1,6 @@
-
-
-
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:engelsiz/ui/screens/message/app.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,19 +69,28 @@ class ProgressScreen extends ConsumerWidget {
                                       fontSize: 22),
                                   textAlign: TextAlign.left,
                                 ),
-                                const ListTile(
+                                ListTile(
                                   leading: Icon(Icons.camera_alt),
                                   title: Text("Kamera ile gönder"),
+                                  onTap: () {
+                                    uploadFromCamera();
+                                    uploadImage(channel, context.currentUser!);
+                                  },
                                 ),
-                                const ListTile(
+                                ListTile(
                                   leading: Icon(Icons.photo_library_rounded),
                                   title: Text("Galeriyi aç"),
+                                  onTap: () {
+                                    uploadFromGalery();
+                                    uploadImage(channel, context.currentUser!);
+                                  },
                                 ),
                                 ListTile(
                                   leading: const Icon(Icons.file_copy_sharp),
                                   title: const Text("Belge gönder"),
                                   onTap: () async {
-                                    uploadPDF(channel, context.currentUser!, ref);
+                                    uploadPDF(
+                                        channel, context.currentUser!, ref);
                                   },
                                 ),
                               ],
@@ -99,10 +102,11 @@ class ProgressScreen extends ConsumerWidget {
     );
   }
 
-  openFile(PlatformFile file){
+  openFile(PlatformFile file) {
     OpenFile.open(file.path!);
   }
 }
+
 class _AppBarTitle extends ConsumerWidget {
   const _AppBarTitle({Key? key, required this.channel}) : super(key: key);
   final Channel channel;
