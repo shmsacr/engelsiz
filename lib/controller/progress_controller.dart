@@ -3,10 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
-import 'package:firebase_core/firebase_core.dart';
 
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart'
 as stream_chat;
@@ -42,5 +41,22 @@ Future<void> uploadPDF(stream_chat.Channel channel,
   }
 }
 
+File? yuklenecekDosya;
+String? indirmeBaglantisi;
+String? imgName;
+
+Future<void> uploadFromGalery() async {
+  XFile? alinanDosya =
+      await ImagePicker().pickImage(source: ImageSource.gallery);
+  yuklenecekDosya = File(alinanDosya!.path);
+  imgName = alinanDosya.name;
+}
+Future<void> uploadFromCamera() async {
+  XFile? alinanDosya =
+      await ImagePicker().pickImage(source: ImageSource.camera);
+
+  yuklenecekDosya = File(alinanDosya!.path);
+  imgName = alinanDosya.name;
+}
 
 
